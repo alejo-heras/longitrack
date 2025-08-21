@@ -122,8 +122,8 @@ importar_gs <- function(idioma = c("es","en","both"),
   idiomas <- if (idioma == "both") c("es","en") else idioma
 
   if (modulo == "both") {
-    pre_res  <- setNames(lapply(idiomas, leer_unit, mod = "pre"),  idiomas)
-    long_res <- setNames(lapply(idiomas, leer_unit, mod = "long"), idiomas)
+    pre_res  <- stats::setNames(lapply(idiomas, leer_unit, mod = "pre"),  idiomas)
+    long_res <- stats::setNames(lapply(idiomas, leer_unit, mod = "long"), idiomas)
 
     pre_df   <- dplyr::bind_rows(lapply(pre_res,  `[[`, "datos"))
     long_df  <- dplyr::bind_rows(lapply(long_res, `[[`, "datos"))
@@ -140,7 +140,7 @@ importar_gs <- function(idioma = c("es","en","both"),
   }
 
   # modulo único ("pre" o "long")
-  res_list <- setNames(lapply(idiomas, leer_unit, mod = modulo), idiomas)
+  res_list <- stats::setNames(lapply(idiomas, leer_unit, mod = modulo), idiomas)
   df       <- dplyr::bind_rows(lapply(res_list, `[[`, "datos"))
 
   if (isTRUE(mapping_verbose)) {

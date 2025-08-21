@@ -2,7 +2,7 @@
 % Please edit documentation in R/renombrar-diccionario.R
 \name{renombrar_con_diccionario}
 \alias{renombrar_con_diccionario}
-\title{Renombrar (y castear) columnas usando un diccionario}
+\title{Renombrar columnas usando un diccionario}
 \usage{
 renombrar_con_diccionario(
   datos,
@@ -13,80 +13,37 @@ renombrar_con_diccionario(
 )
 }
 \arguments{
-\item{datos}{Data frame origen.}
+\item{datos}{Data frame con las columnas a renombrar.}
 
-\item{diccionario}{Data frame diccionario. Requiere \code{variable}, \code{etiqueta}.
-Puede incluir \code{idioma}, \code{modulo}, \code{tipo}, \code{formato}, \code{niveles}.}
+\item{diccionario}{Data frame con, al menos, columnas \code{variable} y \code{etiqueta}.
+Opcionalmente \code{idioma} y/o \code{modulo}.}
 
-\item{idioma}{(opcional) filtro para \code{diccionario$idioma}.}
+\item{idioma}{(opcional) valor para filtrar \code{diccionario$idioma}.}
 
-\item{modulo}{(opcional) filtro para \code{diccionario$modulo}.}
+\item{modulo}{(opcional) valor para filtrar \code{diccionario$modulo}.}
 
-\item{verbose}{si TRUE imprime un resumen.}
+\item{verbose}{Mostrar un resumen por consola (\code{FALSE} por defecto).}
 }
 \value{
 Lista con:
 \itemize{
-\item \code{datos}: data frame renombrado (y casteado si procede)
-\item \code{cols_no_renombradas}: nombres originales sin match en el diccionario
-\item \code{vars_no_encontradas}: etiquetas del diccionario no presentes en \code{datos}
-\item \code{resumen}: texto (incluye conversiones de tipo)
+\item \code{datos}: data frame con columnas renombradas
+\item \code{cols_no_renombradas}: nombres del dataset sin coincidencia
+\item \code{vars_no_encontradas}: etiquetas del diccionario no usadas
+\item \code{resumen}: texto de resumen
 }
 }
 \description{
-Dado un \code{data.frame} y un diccionario con columnas mínimas \code{variable} y
-\code{etiqueta}, renombra columnas cuyos nombres coinciden con \code{etiqueta}.
-Opcionalmente filtra por \code{idioma} y/o \code{modulo} si existen esas columnas.
-}
-\details{
-Si el diccionario incluye \code{tipo}, convierte la clase de las columnas renombradas:
-tipos canónicos (se admiten sinónimos entre paréntesis):
-\itemize{
-\item "character" (char, texto, string)
-\item "numeric"   (double, numero)
-\item "integer"   (entero)
-\item "logical"   (bool, logico, boolean)
-\item "date"      (fecha)       -> usa \code{lubridate::as_date()}
-\item "datetime"  (fechahora, posixct)
-\item "factor"
-}
-
-Campos opcionales del diccionario:
-\itemize{
-\item \code{formato}: cadena de formato para parseo de fecha/fecha-hora (p.ej. "\%d/\%m/\%Y").
-Para \code{date} con \code{formato} se usa \code{as.Date(x, format=...)} y luego \code{as_date}.
-Sin \code{formato}, se intentan órdenes comunes con \code{parse_date_time}.
-\item \code{niveles}: para \code{factor}. Acepta:
-\itemize{
-\item "A,B,C" o "A|B|C"  (fija niveles y su orden)
-\item "1=No,2=Sí" (o con "|")  (niveles = 1,2 ; etiquetas = No,Sí)
-}
-}
-
-Matching etiqueta/nombre: se limpian espacios múltiples, comillas y saltos de línea.
-Conversión: si una conversión introduce nuevos \code{NA}, se emite \code{warning()}.
-Zona horaria para \code{datetime}: "UTC".
+Dado un \code{data.frame} y un diccionario con columnas \code{variable} y \code{etiqueta},
+renombra columnas cuyos nombres coincidan con \code{etiqueta}. Opcionalmente filtra
+el diccionario por \code{idioma} y/o \code{modulo} si esas columnas existen.
 }
 \examples{
-df <- data.frame(
-  "Identificador" = c("007","042"),
-  "Edad (años)"   = c("30","40"),
-  "Fecha"         = c("01/08/2025","22/08/2025"),
-  "¿Válido?"      = c("sí","no"),
-  "Grupo"         = c("B","A"),
-  check.names = FALSE
-)
+df <- data.frame("Identificador" = 1:2, "Edad (años)" = c(30, 40))
 dic <- data.frame(
-  variable = c("id","edad","fecha","ok","grupo"),
-  etiqueta = c("Identificador","Edad (años)","Fecha","¿Válido?","Grupo"),
-  idioma   = "es",
-  modulo   = "caracterizacion",
-  tipo     = c("character","integer","date","logical","factor"),
-  formato  = c(NA, NA, "\%d/\%m/\%Y", NA, NA),
-  niveles  = c(NA, NA, NA, NA, "A,B"),
-  stringsAsFactors = FALSE
+  variable = c("id", "edad"),
+  etiqueta = c("Identificador", "Edad (años)")
 )
-out <- renombrar_con_diccionario(df, dic, idioma="es", modulo="caracterizacion", verbose=TRUE)
-str(out$datos)
-
+out <- renombrar_con_diccionario(df, dic)
+names(out$datos)
 }
