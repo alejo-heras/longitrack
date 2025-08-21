@@ -16,7 +16,4 @@ Vector de caracteres con formato Title Case + partículas en minúscula.
 Convierte un nombre a "Title Case" (primera letra en mayúscula) y
 luego pasa a minúscula las partículas comunes (con \code{\link[=ajustar_particulas]{ajustar_particulas()}}).
 }
-\examples{
-nombre_title_case("MARÍA DEL PILAR")
-nombre_title_case("antonio de la vega")
-}
+\keyword{internal}

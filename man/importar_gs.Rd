@@ -10,6 +10,7 @@ importar_gs(
   urls,
   hoja = "Respuestas de formulario 1",
   diccionario_path = "diccionario.xlsx",
+  sheet_diccionario = 1,
   add_idioma = TRUE,
   mapping = TRUE,
   mapping_verbose = TRUE
@@ -25,7 +26,13 @@ list(es = list(pre=..., long=...), en = list(pre=..., long=...))}
 
 \item{hoja}{nombre de la hoja a leer (por defecto "Respuestas de formulario 1").}
 
-\item{diccionario_path}{ruta al Excel del diccionario (default "diccionario.xlsx").}
+\item{diccionario_path}{ruta al Excel del diccionario.
+Por defecto "diccionario.xlsx" en el directorio de trabajo actual,
+salvo que se especifique lo contrario}
+
+\item{sheet_diccionario}{Nombre (character) o índice (numeric) de la hoja del
+Excel del diccionario. Por defecto 1. Si no existe, se informa el listado
+de hojas disponibles.}
 
 \item{add_idioma}{si TRUE añade columna \code{idioma} a los datos leídos.}
 

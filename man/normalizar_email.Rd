@@ -17,5 +17,9 @@ Limpia espacios, pasa a minúsculas, elimina tildes y espacios internos.
 Además etiqueta si el original tenía tildes, ñ, espacios o mayúsculas.
 }
 \examples{
+# Corrige mayúsculas, espacios, tildes y ñ en direcciones de email:
 normalizar_email(c("  JOSÉ.PeRez @GmAil.com ", "ana_ñ@example.es"))
+#>             original          normalizado  tipo_error
+#> 1   JOSÉ.PeRez @GmAil.com  jose.perez@gmail.com     tildes
+#> 2         ana_ñ@example.es     ana_n@example.es        ñ
 }

@@ -23,7 +23,12 @@ gs_auth <- function(path) {
 #' @param urls lista con estructura:
 #'   list(es = list(pre=..., long=...), en = list(pre=..., long=...))
 #' @param hoja nombre de la hoja a leer (por defecto "Respuestas de formulario 1").
-#' @param diccionario_path ruta al Excel del diccionario (default "diccionario.xlsx").
+#' @param diccionario_path ruta al Excel del diccionario.
+#'   Por defecto "diccionario.xlsx" en el directorio de trabajo actual, 
+#'   salvo que se especifique lo contrario
+#' @param sheet_diccionario Nombre (character) o índice (numeric) de la hoja del
+#'   Excel del diccionario. Por defecto 1. Si no existe, se informa el listado
+#'   de hojas disponibles.
 #' @param add_idioma si TRUE añade columna `idioma` a los datos leídos.
 #' @param mapping si FALSE, no se aplica mapeo (por defecto TRUE).
 #' @param mapping_verbose si TRUE imprime los resúmenes de mapeo (por defecto TRUE).
@@ -41,6 +46,7 @@ importar_gs <- function(idioma = c("es","en","both"),
                         urls,
                         hoja = "Respuestas de formulario 1",
                         diccionario_path = "diccionario.xlsx",
+                        sheet_diccionario = 1,
                         add_idioma = TRUE,
                         mapping = TRUE,
                         mapping_verbose = TRUE) {
@@ -54,7 +60,20 @@ importar_gs <- function(idioma = c("es","en","both"),
   if (isTRUE(mapping)) {
     if (!file.exists(diccionario_path))
       stop("No se encuentra el diccionario en: ", diccionario_path, call. = FALSE)
-    dic <- readxl::read_excel(diccionario_path, sheet = 1)
+    
+    # Validación de hoja
+    sheets <- readxl::excel_sheets(diccionario_path)
+    ok <- (is.numeric(sheet_diccionario) && sheet_diccionario %in% seq_along(sheets)) ||
+      (is.character(sheet_diccionario) && sheet_diccionario %in% sheets)
+    if (!ok) {
+      stop(
+        "La hoja '", sheet_diccionario, "' no existe en el diccionario. ",
+        "Hojas disponibles: ", paste(sheets, collapse = ", "),
+        call. = FALSE
+      )
+    }
+    
+    dic <- readxl::read_excel(diccionario_path, sheet = sheet_diccionario)
   }
 
   # pre -> "caracterizacion", long -> "seguimiento" (para el diccionario)

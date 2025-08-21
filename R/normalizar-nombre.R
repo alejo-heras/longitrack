@@ -4,12 +4,10 @@
 #'
 #' Convierte un nombre a "Title Case" (primera letra en mayúscula) y
 #' luego pasa a minúscula las partículas comunes (con [ajustar_particulas()]).
+#' @keywords internal
 #'
 #' @param nombre Vector de caracteres con nombres.
 #' @return Vector de caracteres con formato Title Case + partículas en minúscula.
-#' @examples
-#' nombre_title_case("MARÍA DEL PILAR")
-#' nombre_title_case("antonio de la vega")
 nombre_title_case <- function(nombre) {
   nombre <- stringr::str_squish(as.character(nombre))
   nombre <- stringi::stri_trans_totitle(nombre, locale = "es_ES")
@@ -17,15 +15,13 @@ nombre_title_case <- function(nombre) {
 }
 
 #' Ajustar partículas en nombres
+#' @keywords internal
 #'
 #' Convierte a minúscula partículas frecuentes en nombres y apellidos
 #' (ej. "de", "del", "la", "y", "van", "von").
 #'
 #' @param nombre Vector de caracteres con nombres.
 #' @return Vector de caracteres con partículas en minúscula.
-#' @examples
-#' ajustar_particulas("Antonio De La Vega")
-#' ajustar_particulas(c("JUAN DEL RÍO", "María VAN DER Meer"))
 ajustar_particulas <- function(nombre) {
 
   stopifnot(is.character(nombre) || is.factor(nombre))
@@ -36,20 +32,23 @@ ajustar_particulas <- function(nombre) {
                   )
 
   reemplazos <- tolower(particulas)
-  stringr::str_replace_all(nombre, setNames(reemplazos, particulas))
+  stringr::str_replace_all(nombre, stats::setNames(reemplazos, particulas))
 }
 
 
-#' Normalizar nombres (Title Case + partículas)
-#'
-#' Atajo: aplica `nombre_title_case()` (Title Case con locale es_ES)
-#' y `ajustar_particulas()` (partículas a minúscula).
+#' Normalizar nombres (Primera letra en mayúscula, 
+#' excepto las partículas más comunes de algunos apellidos)
 #'
 #' @param nombre Vector de caracteres con nombres.
 #' @return Vector normalizado.
 #' @examples
+#' # Normaliza mayúsculas y espacios extra:
 #' normalizar_nombre("  MARÍA  DEL   PILAR ")
+#' #> [1] "María del Pilar"
+#'
+#' # Normaliza partículas comunes:
 #' normalizar_nombre(c("antonio de la vega", "JUAN DEL RÍO"))
+#' #> [1] "Antonio de la Vega" "Juan del Río"
 #' @export
 normalizar_nombre <- function(nombre) {
   ajustar_particulas(nombre_title_case(nombre))

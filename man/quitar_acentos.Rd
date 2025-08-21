@@ -15,3 +15,4 @@ Vector sin tildes ni diacríticos.
 \description{
 Quitar acentos (transliterar a ASCII)
 }
+\keyword{internal}

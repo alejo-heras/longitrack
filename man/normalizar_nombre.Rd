@@ -2,7 +2,8 @@
 % Please edit documentation in R/normalizar-nombre.R
 \name{normalizar_nombre}
 \alias{normalizar_nombre}
-\title{Normalizar nombres (Title Case + partículas)}
+\title{Normalizar nombres (Primera letra en mayúscula,
+excepto las partículas más comunes de algunos apellidos)}
 \usage{
 normalizar_nombre(nombre)
 }
@@ -13,10 +14,15 @@ normalizar_nombre(nombre)
 Vector normalizado.
 }
 \description{
-Atajo: aplica \code{nombre_title_case()} (Title Case con locale es_ES)
-y \code{ajustar_particulas()} (partículas a minúscula).
+Normalizar nombres (Primera letra en mayúscula,
+excepto las partículas más comunes de algunos apellidos)
 }
 \examples{
+# Normaliza mayúsculas y espacios extra:
 normalizar_nombre("  MARÍA  DEL   PILAR ")
+#> [1] "María del Pilar"
+
+# Normaliza partículas comunes:
 normalizar_nombre(c("antonio de la vega", "JUAN DEL RÍO"))
+#> [1] "Antonio de la Vega" "Juan del Río"
 }

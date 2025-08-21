@@ -13,10 +13,22 @@ ajustar_particulas(nombre)
 Vector de caracteres con partículas en minúscula.
 }
 \description{
-Convierte a minúscula partículas frecuentes en nombres y apellidos
-(ej. "de", "del", "la", "y", "van", "von").
+Ajustar partículas en nombres
 }
-\examples{
-ajustar_particulas("Antonio De La Vega")
-ajustar_particulas(c("JUAN DEL RÍO", "María VAN DER Meer"))
-}
+\keyword{"de",}
+\keyword{"del",}
+\keyword{"la",}
+\keyword{"van",}
+\keyword{"von").}
+\keyword{"y",}
+\keyword{(ej.}
+\keyword{Convierte}
+\keyword{a}
+\keyword{apellidos}
+\keyword{en}
+\keyword{frecuentes}
+\keyword{internal}
+\keyword{minúscula}
+\keyword{nombres}
+\keyword{partículas}
+\keyword{y}
