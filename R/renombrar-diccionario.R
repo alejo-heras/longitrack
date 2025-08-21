@@ -32,9 +32,24 @@ renombrar_con_diccionario <- function(datos, diccionario, idioma = NULL, modulo 
   
   dic <- diccionario
   
-  # Filtrado opcional si las columnas existen
-  if (!is.null(idioma) && "idioma" %in% names(dic))  dic <- dic[dic$idioma  == idioma, , drop = FALSE]
-  if (!is.null(modulo) && "modulo" %in% names(dic))  dic <- dic[dic$modulo  == modulo, , drop = FALSE]
+  # # Filtrado opcional si las columnas existen
+  # if (!is.null(idioma) && "idioma" %in% names(dic))  dic <- dic[dic$idioma  == idioma, , drop = FALSE]
+  # if (!is.null(modulo) && "modulo" %in% names(dic))  dic <- dic[dic$modulo  == modulo, , drop = FALSE]
+  
+  # Filtrado opcional robusto
+  norm <- function(x) tolower(stringi::stri_trans_general(trimws(as.character(x)), "Latin-ASCII"))
+  
+  if (!is.null(idioma) && "idioma" %in% names(dic)) {
+    dic <- dic[norm(dic$idioma) == norm(idioma), , drop = FALSE]
+  }
+  if (!is.null(modulo) && "modulo" %in% names(dic)) {
+    dic <- dic[norm(dic$modulo) == norm(modulo), , drop = FALSE]
+  }
+  
+  if (nrow(dic) == 0L) {
+    stop("Tras filtrar por idioma/modulo el diccionario qued\u00F3 vac\u00EDo. Revisa valores (tildes/espacios/may\u00FAsculas).", call. = FALSE)
+  }
+  
   
   # Verificaciones mínimas
   stopifnot(all(c("variable", "etiqueta") %in% names(dic)))

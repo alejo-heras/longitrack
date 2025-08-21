@@ -76,8 +76,8 @@ importar_gs <- function(idioma = c("es","en","both"),
     dic <- readxl::read_excel(diccionario_path, sheet = sheet_diccionario)
   }
 
-  # pre -> "caracterizacion", long -> "seguimiento" (para el diccionario)
-  mod_map <- c(pre = "caracterizacion", long = "seguimiento")
+  # pre -> "pretest", long -> "seguimiento" (para el diccionario)
+  mod_map <- c(pre = "pretest", long = "seguimiento")
 
   get_url <- function(idm, mod) {
     u <- urls[[idm]][[mod]]
