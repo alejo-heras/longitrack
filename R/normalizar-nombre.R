@@ -10,7 +10,6 @@
 #' @examples
 #' nombre_title_case("MARÍA DEL PILAR")
 #' nombre_title_case("antonio de la vega")
-#' @export
 nombre_title_case <- function(nombre) {
   nombre <- stringr::str_squish(as.character(nombre))
   nombre <- stringi::stri_trans_totitle(nombre, locale = "es_ES")
@@ -27,7 +26,6 @@ nombre_title_case <- function(nombre) {
 #' @examples
 #' ajustar_particulas("Antonio De La Vega")
 #' ajustar_particulas(c("JUAN DEL RÍO", "María VAN DER Meer"))
-#' @export
 ajustar_particulas <- function(nombre) {
 
   stopifnot(is.character(nombre) || is.factor(nombre))

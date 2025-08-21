@@ -3,7 +3,6 @@
 #'
 #' @param x Vector de caracteres.
 #' @return Vector sin tildes ni diacríticos.
-#' @export
 quitar_acentos <- function(x) {
   x <- as.character(x)
   stringi::stri_trans_general(x, "Latin-ASCII")
