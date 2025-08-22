@@ -1,6 +1,8 @@
 ---
 title: "Introducción a longitrack"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+  toc: true
 vignette: >
   %\VignetteIndexEntry{introducción a longitrack}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Instalación
+# Instalación
 
 ```{r setup}
 # Instalar desde GitHub
@@ -22,7 +24,13 @@ Instalación
 library(longitrack)
 ```
 
-Normalizar emails
+# Importar
+
+## Google Sheets
+
+## Mapeo
+
+## Normalizar emails
 
 ```{r}
 emails <- c("  José.Pérez @ GmÁil.com ", "ANA@EMPRESA.ES", "nino @ dominio.es")
@@ -35,6 +43,6 @@ normalizar_email(emails)
 
 ```
 
-
+## Normalizar nombres
 
 
