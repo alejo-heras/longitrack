@@ -2,24 +2,16 @@
 % Please edit documentation in R/normalizar-email.R
 \name{normalizar_email}
 \alias{normalizar_email}
-\title{Normalizar emails y detectar errores comunes}
+\title{Normaliza emails (minúsculas, sin acentos, sin espacios)}
 \usage{
-normalizar_email(email_vector)
+normalizar_email(x)
 }
 \arguments{
-\item{email_vector}{Vector de caracteres con emails.}
+\item{x}{Vector de emails}
 }
 \value{
-data.frame con columnas: \code{original}, \code{normalizado}, \code{tipo_error}.
+Vector con emails normalizados
 }
 \description{
-Limpia espacios, pasa a minúsculas, elimina tildes y espacios internos.
-Además etiqueta si el original tenía tildes, ñ, espacios o mayúsculas.
-}
-\examples{
-# Corrige mayúsculas, espacios, tildes y ñ en direcciones de email:
-normalizar_email(c("  JOSÉ.PeRez @GmAil.com ", "ana_ñ@example.es"))
-#>             original          normalizado  tipo_error
-#> 1   JOSÉ.PeRez @GmAil.com  jose.perez@gmail.com     tildes
-#> 2         ana_ñ@example.es     ana_n@example.es        ñ
+Normaliza emails (minúsculas, sin acentos, sin espacios)
 }

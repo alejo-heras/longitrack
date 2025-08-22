@@ -1,0 +1,40 @@
+---
+title: "Introducción a longitrack"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{introducción a longitrack}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Instalación
+
+```{r setup}
+# Instalar desde GitHub
+# remotes::install_github("alejo-heras/longitrack")
+library(longitrack)
+```
+
+Normalizar emails
+
+```{r}
+emails <- c("  José.Pérez @ GmÁil.com ", "ANA@EMPRESA.ES", "nino @ dominio.es")
+
+# Chequear errores comunes
+emails_check(emails)
+
+# Normalizar emails
+normalizar_email(emails)
+
+```
+
+
+
+

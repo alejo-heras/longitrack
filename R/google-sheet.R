@@ -23,7 +23,7 @@ gs_auth <- function(path) {
 #' @param urls lista con estructura:
 #'   list(es = list(pre=..., long=...), en = list(pre=..., long=...))
 #' @param hoja nombre de la hoja a leer (por defecto "Respuestas de formulario 1").
-#' @param diccionario_path ruta al Excel del diccionario.
+#' @param path_diccionario ruta al Excel del diccionario.
 #'   Por defecto "diccionario.xlsx" en el directorio de trabajo actual, 
 #'   salvo que se especifique lo contrario
 #' @param sheet_diccionario Nombre (character) o índice (numeric) de la hoja del
@@ -45,7 +45,7 @@ importar_gs <- function(idioma = c("es","en","both"),
                         modulo = c("pre","long","both"),
                         urls,
                         hoja = "Respuestas de formulario 1",
-                        diccionario_path = "diccionario.xlsx",
+                        path_diccionario = "diccionario.xlsx",
                         sheet_diccionario = 1,
                         add_idioma = TRUE,
                         mapping = TRUE,
@@ -58,11 +58,11 @@ importar_gs <- function(idioma = c("es","en","both"),
   # Cargar diccionario solo si se mapea
   dic <- NULL
   if (isTRUE(mapping)) {
-    if (!file.exists(diccionario_path))
-      stop("No se encuentra el diccionario en: ", diccionario_path, call. = FALSE)
+    if (!file.exists(path_diccionario))
+      stop("No se encuentra el diccionario en: ", path_diccionario, call. = FALSE)
     
     # Validación de hoja
-    sheets <- readxl::excel_sheets(diccionario_path)
+    sheets <- readxl::excel_sheets(path_diccionario)
     ok <- (is.numeric(sheet_diccionario) && sheet_diccionario %in% seq_along(sheets)) ||
       (is.character(sheet_diccionario) && sheet_diccionario %in% sheets)
     if (!ok) {
@@ -73,7 +73,7 @@ importar_gs <- function(idioma = c("es","en","both"),
       )
     }
     
-    dic <- readxl::read_excel(diccionario_path, sheet = sheet_diccionario)
+    dic <- readxl::read_excel(path_diccionario, sheet = sheet_diccionario)
   }
 
   # pre -> "pretest", long -> "seguimiento" (para el diccionario)

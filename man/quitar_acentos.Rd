@@ -2,7 +2,7 @@
 % Please edit documentation in R/normalizar-email.R
 \name{quitar_acentos}
 \alias{quitar_acentos}
-\title{Quitar acentos (transliterar a ASCII)}
+\title{Quita tildes/acentos y normaliza caracteres a ASCII}
 \usage{
 quitar_acentos(x)
 }
@@ -10,9 +10,13 @@ quitar_acentos(x)
 \item{x}{Vector de caracteres.}
 }
 \value{
-Vector sin tildes ni diacríticos.
+Un vector de caracteres sin acentos ni caracteres no imprimibles.
 }
 \description{
-Quitar acentos (transliterar a ASCII)
+Convierte caracteres acentuados a su forma base y elimina
+caracteres no imprimibles. Usamos \code{stringi::stri_trans_general("Latin-ASCII")}
+por su mayor consistencia frente a \code{iconv} entre plataformas.
 }
-\keyword{internal}
+\examples{
+quitar_acentos(c("Camión", "AÑA", "José  "))
+}

@@ -55,12 +55,24 @@ renombrar_con_diccionario <- function(datos, diccionario, idioma = NULL, modulo 
   stopifnot(all(c("variable", "etiqueta") %in% names(dic)))
   
   # Función para limpiar texto (quita saltos, dobles comillas, etc.)
+  # clean_label <- function(x) {
+  #   x %>%
+  #     stringr::str_squish() %>%                       # 1) squish
+  #     stringr::str_replace_all('"', '') %>%           # 2) quitar comillas
+  #     stringr::str_replace_all('[\r\n]+', ' ') %>%    # 3) saltos -> espacio
+  #     {x <- .; x <- gsub("/", "-", x, fixed = TRUE);  # 4) normaliza / -> -
+  #     gsub("dd\\s*/\\s*mm\\s*/\\s*aaaa", "dd-mm-aaaa", x, ignore.case = TRUE)}
+  # }
   clean_label <- function(x) {
-    x %>%
-      stringr::str_squish() %>%                    # elimina espacios y saltos dobles
-      stringr::str_replace_all('"', '') %>%        # elimina comillas
-      stringr::str_replace_all('[\r\n]+', ' ')     # reemplaza saltos por espacio
+    x <- as.character(x)
+    x <- stringr::str_squish(x)                         # 1) squish
+    x <- stringr::str_replace_all(x, '"', '')           # 2) quitar comillas
+    x <- stringr::str_replace_all(x, "[\r\n]+", " ")    # 3) saltos -> espacio
+    x <- gsub("/", "-", x, fixed = TRUE)                # 4) normaliza / -> -
+    x <- gsub("dd\\s*/\\s*mm\\s*/\\s*aaaa", "dd-mm-aaaa", x, ignore.case = TRUE)
+    x
   }
+  
   
   # Limpiar nombres y etiquetas
   nombres_actuales <- clean_label(names(datos))

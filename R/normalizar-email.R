@@ -1,47 +1,54 @@
-
-#' Quitar acentos (transliterar a ASCII)
-#' @keywords internal
+#' Quita tildes/acentos y normaliza caracteres a ASCII
+#'
+#' Convierte caracteres acentuados a su forma base y elimina
+#' caracteres no imprimibles. Usamos `stringi::stri_trans_general("Latin-ASCII")`
+#' por su mayor consistencia frente a `iconv` entre plataformas.
 #'
 #' @param x Vector de caracteres.
-#' @return Vector sin tildes ni diacríticos.
+#' @return Un vector de caracteres sin acentos ni caracteres no imprimibles.
+#' @examples
+#' quitar_acentos(c("Camión", "AÑA", "José  "))
+#' @export
+#' @importFrom stringi stri_trans_general
 quitar_acentos <- function(x) {
-  x <- as.character(x)
-  stringi::stri_trans_general(x, "Latin-ASCII")
+  stopifnot(is.character(x))
+  y <- stringi::stri_trans_general(x, "Latin-ASCII")
+  # elimina caracteres no imprimibles (incl. restos de transliteración)
+  y <- gsub("[^[:print:]]", "", y, perl = TRUE)
+  y
 }
 
-#' Normalizar emails y detectar errores comunes
+#' Normaliza emails (minúsculas, sin acentos, sin espacios)
 #'
-#' Limpia espacios, pasa a minúsculas, elimina tildes y espacios internos.
-#' Además etiqueta si el original tenía tildes, ñ, espacios o mayúsculas.
-#'
-#' @param email_vector Vector de caracteres con emails.
-#' @return data.frame con columnas: `original`, `normalizado`, `tipo_error`.
-#' @examples
-#' # Corrige mayúsculas, espacios, tildes y ñ en direcciones de email:
-#' normalizar_email(c("  JOSÉ.PeRez @GmAil.com ", "ana_ñ@example.es"))
-#' #>             original          normalizado  tipo_error
-#' #> 1   JOSÉ.PeRez @GmAil.com  jose.perez@gmail.com     tildes
-#' #> 2         ana_ñ@example.es     ana_n@example.es        ñ
+#' @param x Vector de emails
+#' @return Vector con emails normalizados
 #' @export
-normalizar_email <- function(email_vector) {
-  stopifnot(is.character(email_vector) || is.factor(email_vector))
-  original <- trimws(as.character(email_vector))
+normalizar_email <- function(x) {
+  stopifnot(is.character(x) | is.factor(x))
+  x <- trimws(as.character(x))
+  x <- quitar_acentos(tolower(x))
+  gsub("\\s+", "", x, perl = TRUE)
+}
 
-  # normalización mínima
-  normalizado <- quitar_acentos(tolower(original))
-  normalizado <- gsub("\\s+", "", normalizado)
 
-  # tipado de error simple (primera coincidencia relevante)
+#' Chequea y reporta errores comunes en emails
+#'
+#' @param x Vector de emails
+#' @return Tibble con columnas original, normalizado, tipo_error
+#' @export
+emails_check <- function(x) {
+  original <- trimws(as.character(x))
+  normalizado <- normalizar_email(original)
+  
   tipo_error <- ifelse(grepl("[áéíóúÁÉÍÓÚ]", original), "tildes",
                        ifelse(grepl("[ñÑ]", original), "ñ",
                               ifelse(grepl("\\s", original), "espacios",
-                                     ifelse(grepl("[A-Z]", original), "mayúsculas",
-                                            NA_character_))))
-
-  data.frame(
-    original = original,
-    normalizado = normalizado,
-    tipo_error = tipo_error,
-    stringsAsFactors = FALSE
+                                     ifelse(grepl("[A-Z]", original), "mayúsculas", NA_character_))))
+  
+  tibble::tibble(
+    original,
+    normalizado,
+    tipo_error
   )
 }
+
