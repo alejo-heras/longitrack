@@ -54,18 +54,17 @@ renombrar_con_diccionario <- function(datos, diccionario, idioma = NULL, modulo 
   # Verificaciones mínimas
   stopifnot(all(c("variable", "etiqueta") %in% names(dic)))
   
-  # Helper: limpieza de etiquetas/nombres
+  # Función para limpiar texto (quita saltos, dobles comillas, etc.)
   clean_label <- function(x) {
-    x <- as.character(x)
-    x <- stringr::str_squish(x)                    # elimina espacios/saltos múltiples
-    x <- stringr::str_replace_all(x, '"', "")      # quita comillas dobles
-    x <- stringr::str_replace_all(x, "[\r\n]+", " ") # saltos -> espacio
-    x
+    x %>%
+      stringr::str_squish() %>%                    # elimina espacios y saltos dobles
+      stringr::str_replace_all('"', '') %>%        # elimina comillas
+      stringr::str_replace_all('[\r\n]+', ' ')     # reemplaza saltos por espacio
   }
   
-  # Nombres actuales y etiquetas "limpias"
-  nombres_actuales        <- clean_label(names(datos))
-  etiquetas_diccionario   <- clean_label(dic$etiqueta)
+  # Limpiar nombres y etiquetas
+  nombres_actuales <- clean_label(names(datos))
+  etiquetas_diccionario <- clean_label(trimws(dic$etiqueta))
   
   # Índices de match 1:1 por posición en diccionario
   indices <- match(nombres_actuales, etiquetas_diccionario)
