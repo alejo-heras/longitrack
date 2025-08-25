@@ -1,13 +1,25 @@
 ---
 title: "Introducción a longitrack"
-output: 
-  rmarkdown::html_vignette:
-  toc: true
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
 vignette: >
   %\VignetteIndexEntry{introducción a longitrack}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+```{r eval=FALSE, include=FALSE}
+# El output original preferido en CRAN
+# Es más ligero
+
+output: 
+  rmarkdown::html_vignette:
+  toc: true
+```
+
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -24,7 +36,7 @@ knitr::opts_chunk$set(
 library(longitrack)
 ```
 
-# Importar
+# Importar y procesar
 
 ## Google Sheets
 
