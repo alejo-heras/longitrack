@@ -36,7 +36,7 @@ Calcula:
 \itemize{
 \item \code{n_pre} / \code{n_pre_acum}: PRE por día / acumulado
 \item \code{n_long_dia} / \code{n_long_acum}: LONG (eventos) por día / acumulado
-\item \code{n_long_personas}: personas únicas con ≥1 LONG hasta la fecha
+\item \code{n_long_personas}: personas únicas con >= LONG hasta la fecha
 \item \code{n_post} / \code{n_post_acum}: POST por día / acumulado
 \item \code{n_pre_no_long}: personas con PRE hasta la fecha y sin LONG aún
 \item \code{n_long_no_pre}: personas con LONG hasta la fecha y sin PRE aún

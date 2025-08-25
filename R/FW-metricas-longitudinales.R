@@ -3,7 +3,7 @@
 #' Calcula:
 #' - `n_pre` / `n_pre_acum`: PRE por día / acumulado
 #' - `n_long_dia` / `n_long_acum`: LONG (eventos) por día / acumulado
-#' - `n_long_personas`: personas únicas con ≥1 LONG hasta la fecha
+#' - `n_long_personas`: personas únicas con >= LONG hasta la fecha
 #' - `n_post` / `n_post_acum`: POST por día / acumulado
 #' - `n_pre_no_long`: personas con PRE hasta la fecha y sin LONG aún
 #' - `n_long_no_pre`: personas con LONG hasta la fecha y sin PRE aún
