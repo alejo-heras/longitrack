@@ -1,3 +1,6 @@
+
+
+
 #' Métricas clave sobre el padrón
 #' @param padron data.frame con flag_pre, flag_long, (opcional) flag_post y last_long
 #' @param cutoff_days días de inactividad para abandono (por defecto 7)
