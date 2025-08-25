@@ -33,3 +33,5 @@ perfil_incompleto <- function(data, flag, value = FALSE) {
   uniq <- data[!duplicated(data$email), , drop = FALSE]
   uniq[uniq[[flag]] == value, , drop = FALSE]
 }
+
+

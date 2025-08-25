@@ -14,7 +14,13 @@ Imports:
     dplyr,
     stringr,
     stringi,
-    tibble
+    tibble,
+    tidyr,
+    lubridate,
+    rlang,
+    purrr,
+    ggplot2,
+    scales
 Suggests: 
     knitr,
     rmarkdown,

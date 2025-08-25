@@ -1,3 +1,21 @@
+# ------------------------------------------------------------------
+# class_dictionary():
+# - Carga un diccionario (data.frame, Excel o CSV).
+# - Opcionalmente filtra por idioma y/o módulo.
+# - Verifica que tenga columnas mínimas ("variable","tipo").
+# - Convierte columnas de `datos` según el tipo indicado:
+#     · character → as.character()
+#     · numerical → as.numeric()
+#     · logical   → as.logical()
+#     · factor    → factor() (con niveles/etiquetas si existen)
+#     · date      → se deja igual
+# - Advierte si aparecen nuevos NA por la conversión.
+# - Devuelve el data.frame con las clases ya transformadas.
+# ------------------------------------------------------------------
+
+
+
+
 #' Castear columnas según diccionario (carga automática + filtro idioma/módulo)
 #'
 #' Reglas:
@@ -13,9 +31,14 @@
 #' Además, si la conversión introduce nuevos NA, se emite un warning.
 #'
 #' @param datos data.frame con nombres ya iguales a diccionario$variable.
-#' @param diccionario NULL (por defecto), un data.frame, o ruta (xlsx/csv).
-#' @param path_diccionario Ruta por defecto cuando diccionario=NULL (def. "diccionario.xlsx").
-#' @param sheet_diccionario Hoja si es Excel (def. 1).
+#' @param diccionario Puede ser:
+#'   - `NULL` (por defecto): se carga el archivo indicado en `path_diccionario`.
+#'   - Un `data.frame`: se usa directamente como diccionario.
+#'   - Una cadena de texto (ruta): se interpreta como ruta a un archivo Excel o CSV.
+#'   - con, al menos, columnas `variable` y `etiqueta`. Opcionalmente `idioma` y/o `modulo`.
+#' @param path_diccionario Ruta al diccionario cuando `diccionario = NULL`.
+#'   Por defecto "diccionario.xlsx" en el directorio de trabajo actual.
+#' @param sheet_diccionario Hoja si es Excel (nombre o índice). Por defecto 1.
 #' @param idioma (opcional) filtra diccionario$idioma si existe.
 #' @param modulo (opcional) filtra diccionario$modulo si existe.
 #' @return data.frame con clases convertidas.

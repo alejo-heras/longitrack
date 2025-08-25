@@ -1,21 +1,45 @@
-#' Añadir flags entre PRE, LONG y POST (a prueba de colisiones)
+# ------------------------------------------------------------------
+# add_flags():
+# - Entrada: data.frames pre, long, post (cualquiera puede ser NULL).
+# - Flags cruzados por módulo:
+#     * pre:  flag_long, flag_post
+#     * long: flag_pre, flag_post
+#     * post: flag_pre, flag_long
+# - Resumen LONG por persona (agregado por email):
+#     * n_mediciones, primera_fecha, ultima_fecha (pre)
+# - Devuelve list(pre=..., long=..., post=... ).
+# ------------------------------------------------------------------
+
+
+#' Añadir flags de presencia y resumen longitudinal
 #'
-#' Enrichce tibbles de PRE/LONG/POST con flags de presencia cruzada y
-#' métricas agregadas de LONG por email, evitando colisiones de nombre en joins.
+#' Añade indicadores cruzados de presencia entre módulos 
+#' y un resumen por persona (métricas agregadas de LONG por email)
 #'
-#' @param pre  Tibble con una fila por participante (fase PRE). Requiere columna `email`.
-#' @param long Tibble con varias filas por participante (fase LONG). Requiere `email` y `date`.
-#' @param post Tibble opcional con una fila por participante (fase POST). Requiere `email`.
+#' **Flags cruzados:**
+#' - En `pre`:  `flag_long`, `flag_post`.
+#' - En `long`: `flag_pre`,  `flag_post`.
+#' - En `post`: `flag_pre`,  `flag_long`.
+#'
+#' **Resumen LONG por persona (agregado por `email`):**
+#' - `n_mediciones`: número de filas en LONG por persona.
+#' - `primera_fecha`: primera fecha observada en LONG.
+#' - `ultima_fecha`: última fecha observada en LONG.
+#'
+#'
+#' @param pre  data.frame de PRE (o `NULL` si no aplica). Requiere columna `email`.
+#' @param long data.frame de LONG (o `NULL` si no aplica). Requiere `email` y `date`.
+#' @param post data.frame de POST (o `NULL` si no aplica). Requiere `email`.
 #' @param summary_prefix Prefijo a aplicar a las columnas agregadas de \code{long}
 #'   antes de unir con \code{pre} y \code{post}. Por defecto `"long_"`.
 #'   Los nombres objetivos son \code{paste0(summary_prefix, c("n","first_date","last_date"))}.
 #'   Si alguno ya existe en el destino, se crea una variante única (p.ej. `"long_n.1"`).
-#' @return Lista con tres tibbles: \code{pre}, \code{long}, \code{post} (este último \code{NULL} si no se pasa).
+#' @return Lista con tres data frames: \code{pre}, \code{long}, \code{post} (este último \code{NULL} si no se pasa).
 #'
 #' @details
 #' - Idempotencia: puedes llamar a \code{add_flags()} varias veces sin que se creen columnas duplicadas
 #'   por el \code{left_join()}, porque las columnas agregadas de \code{long} se renombran con prefijo
-#'   y, en caso de colisión, se desambigüan con \code{make.unique()}.
+#'   y, en caso de colisión, se desambiguan con \code{make.unique()}.
 #' - Flags recalculados: \code{flag_pre}, \code{flag_long}, \code{flag_post} se recalculan en cada llamada
 #'   y sobrescriben si ya existen.
 #' - Tipos: \code{date} en \code{long} debe ser \code{Date} o coercible a \code{Date}.

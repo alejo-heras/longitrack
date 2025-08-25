@@ -1,3 +1,17 @@
+# ------------------------------------------------------------------
+# renombrar_con_diccionario():
+# - Toma un data.frame y un diccionario con columnas "variable"/"etiqueta".
+# - Opcionalmente filtra el diccionario por idioma y/o módulo.
+# - Limpia nombres y etiquetas, hace el match y renombra columnas.
+# - Devuelve lista con:
+#     * datos renombrados
+#     * columnas sin coincidencia
+#     * variables del diccionario no usadas
+#     * resumen en texto
+# Puede usarse dentro de importar_gs() o de forma independiente.
+# ------------------------------------------------------------------
+
+
 #' Renombrar columnas usando un diccionario
 #'
 #' Dado un `data.frame` y un diccionario con columnas `variable` y `etiqueta`,
@@ -5,8 +19,14 @@
 #' el diccionario por `idioma` y/o `modulo` si esas columnas existen.
 #'
 #' @param datos Data frame con las columnas a renombrar.
-#' @param diccionario Data frame con, al menos, columnas `variable` y `etiqueta`.
-#'        Opcionalmente `idioma` y/o `modulo`.
+#' @param diccionario Puede ser:
+#'   - `NULL` (por defecto): se carga el archivo indicado en `path_diccionario`.
+#'   - Un `data.frame`: se usa directamente como diccionario.
+#'   - Una cadena de texto (ruta): se interpreta como ruta a un archivo Excel o CSV.
+#'   - con, al menos, columnas `variable` y `etiqueta`. Opcionalmente `idioma` y/o `modulo`.
+#' @param path_diccionario Ruta al diccionario cuando `diccionario = NULL`.
+#'   Por defecto "diccionario.xlsx" en el directorio de trabajo actual.
+#' @param sheet_diccionario Hoja si es Excel (nombre o índice). Por defecto 1.
 #' @param idioma (opcional) valor para filtrar `diccionario$idioma`.
 #' @param modulo (opcional) valor para filtrar `diccionario$modulo`.
 #' @param verbose Mostrar un resumen por consola (`FALSE` por defecto).
@@ -27,7 +47,13 @@
 #' out <- renombrar_con_diccionario(df, dic)
 #' names(out$datos)
 #' @export
-renombrar_con_diccionario <- function(datos, diccionario, idioma = NULL, modulo = NULL, verbose = FALSE) {
+renombrar_con_diccionario <- function(datos, 
+                                      diccionario = NULL, 
+                                      path_diccionario = "diccionario.xlsx",
+                                      sheet_diccionario = 1,
+                                      idioma = NULL, 
+                                      modulo = NULL, 
+                                      verbose = FALSE) {
   stopifnot(is.data.frame(datos), is.data.frame(diccionario))
   
   dic <- diccionario
