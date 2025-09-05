@@ -1,9 +1,12 @@
 Package: longitrack
-Title: What the Package Does (One Line, Title Case)
+Title: Herramientas para el Seguimiento de Trabajo de Campo Longitudinal.
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person("Alejandro", "González Heras", , "alejandro.gonzalez.heras@gmail.com", role = c("aut", "cre"))
+Description: Herramientas para importar, limpiar y monitorizar datos de trabajo
+    de campo cuantitativo longitudinal, incluyendo la normalización de emails y
+    nombres, la construcción de un padrón único de participantes, la exclusión
+    de casos, y el cálculo de métricas de participación, seguimiento y retención.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
