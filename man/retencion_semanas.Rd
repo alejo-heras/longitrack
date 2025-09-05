@@ -15,8 +15,7 @@ retencion_semanas(
 \arguments{
 \item{long}{data.frame con columnas \code{email}, \code{date} (fechas LONG)}
 
-\item{max_semanas}{entero opcional. Si se pasa y \code{cap_por_ref=TRUE},
-se recorta a lo que permita \code{ref_date}.}
+\item{max_semanas}{entero opcional.}
 
 \item{cutoff_days}{días sin medir para considerar abandono (default 7)}
 
@@ -28,5 +27,34 @@ se recorta a lo que permita \code{ref_date}.}
 tibble con columnas \code{semana} y \code{retencion} (proporción 0..1)
 }
 \description{
-Retención por semanas
+Estima la fracción de participantes aún "activos" en la semana \emph{k},
+a partir de mediciones LONG en formato largo (varias filas por \code{email}).
 }
+\details{
+\itemize{
+\item Se censuran mediciones futuras: \code{date <= ref_date}.
+\item Para cada \code{email} se calcula \code{primera = min(date)} y \code{ultima = max(date)}.
+\item Definición de retenido en semana \code{k}: \code{ultima >= (primera + k*7 - cutoff_days)}.
+\item El eje \verb{0..max_semanas}:
+\itemize{
+\item Si \code{max_semanas} es \code{NULL}, se usa el máximo permitido por \code{ref_date}.
+\item Si \code{cap_por_ref = TRUE}, se recorta a lo permitido por \code{ref_date}.
+}
+}
+}
+\examples{
+# Datos mínimos reproducibles
+long <- data.frame(
+  email = c("a@x.com","a@x.com","b@x.com","b@x.com","c@x.com"),
+  date  = as.Date(c("2025-01-01","2025-01-10","2025-01-03","2025-01-17","2025-01-05"))
+)
+retencion_semanas(long, cutoff_days = 7, ref_date = as.Date("2025-01-31"))
+
+}
+\seealso{
+\code{\link[=metricas_padron]{metricas_padron()}}, \code{\link[=metricas_longitudinales]{metricas_longitudinales()}}
+
+Other metricas: 
+\code{\link{metricas_longitudinales}()}
+}
+\concept{metricas}

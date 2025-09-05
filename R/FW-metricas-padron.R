@@ -6,6 +6,7 @@
 #' @param cutoff_days días de inactividad para abandono (por defecto 7)
 #' @return data.frame con métricas y conteos
 #' @export
+#' @seealso [retencion_semanas()], [metricas_longitudinales()]
 metricas_padron <- function(padron, cutoff_days = 7) {
   pre  <- as.logical(padron$flag_pre);  pre[is.na(pre)]   <- FALSE
   long <- as.logical(padron$flag_long); long[is.na(long)] <- FALSE

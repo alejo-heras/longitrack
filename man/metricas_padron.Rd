@@ -17,3 +17,6 @@ data.frame con métricas y conteos
 \description{
 Métricas clave sobre el padrón
 }
+\seealso{
+\code{\link[=retencion_semanas]{retencion_semanas()}}, \code{\link[=metricas_longitudinales]{metricas_longitudinales()}}
+}

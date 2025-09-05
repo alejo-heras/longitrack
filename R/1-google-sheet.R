@@ -86,6 +86,7 @@ gs_auth <- function(path) {
 #'             mapping=TRUE, cast=TRUE, check=TRUE)
 #' }
 #' @export
+#' @importFrom utils read.csv
 importar_gs <- function(idioma = c("es","en","both"),
                         modulos = c("pre","long","post","all"),
                         urls,

@@ -43,6 +43,7 @@
 #' @param modulo (opcional) filtra diccionario$modulo si existe.
 #' @return data.frame con clases convertidas.
 #' @export
+#' @importFrom utils read.csv
 class_dictionary <- function(datos,
                       diccionario = NULL,
                       path_diccionario = "diccionario.xlsx",

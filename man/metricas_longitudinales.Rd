@@ -24,14 +24,22 @@ metricas_longitudinales(
 \item{by}{"dia" (default) o "semana".}
 }
 \value{
-tibble con columnas:
-\code{fecha}, \code{n_pre}, \code{n_pre_acum}, \code{n_long_dia}, \code{n_long_acum},
-\code{n_long_personas}, \code{n_post}, \code{n_post_acum},
-\code{n_pre_no_long}, \code{n_long_no_pre},
-\code{n_long_post_acum}, \code{n_completos},
-\code{activos}, \code{abandono}.
+Tibble con columnas:
+\itemize{
+\item \code{fecha}
+\item \code{n_pre}, \code{n_pre_acum}
+\item \code{n_long_dia}, \code{n_long_acum}, \code{n_long_personas}
+\item \code{n_post}, \code{n_post_acum}
+\item \code{n_pre_no_long}, \code{n_long_no_pre}
+\item \code{n_long_post_acum}, \code{n_completos}
+\item \code{activos}, \code{abandono}
+}
 }
 \description{
+Calcula series diarias/semanales a partir de PRE (una fila/persona),
+LONG (múltiples filas/persona) y POST (una fila/persona).
+}
+\details{
 Calcula:
 \itemize{
 \item \code{n_pre} / \code{n_pre_acum}: PRE por día / acumulado
@@ -44,5 +52,44 @@ Calcula:
 \item \code{n_completos}: personas con PRE+LONG+POST hasta la fecha
 \item \code{activos}: stock con última LONG en los últimos \code{cutoff_days}
 \item \code{abandono}: stock acumulado (salidas en \code{last + cutoff_days})
+\item Las fechas se convierten con \code{as.Date()}.
+\item \strong{activos}: stock de personas con al menos una LONG y sin “salida”
+(entrada por \code{long_first}, salida en \code{long_last + cutoff_days}).
+\item \strong{abandono}: acumulado de salidas ocurridas en la fecha
+\code{long_last + cutoff_days}.
+\item Modo \strong{"semana"}: se agregan ventanas de 7 días con
+\code{as.Date(cut(fecha, "week"))} y se toma el \strong{último} valor semanal
+para stocks/acumulados.
 }
 }
+\examples{
+# Datos mínimos reproducibles
+pre  <- data.frame(
+  email = c("a@x.com","b@x.com","c@x.com"),
+  date  = as.Date(c("2025-01-01","2025-01-03","2025-01-05"))
+)
+long <- data.frame(
+  email = c("a@x.com","a@x.com","b@x.com","c@x.com","c@x.com"),
+  date  = as.Date(c("2025-01-02","2025-01-09","2025-01-04","2025-01-06","2025-01-20"))
+)
+post <- data.frame(
+  email = c("a@x.com","c@x.com"),
+  date  = as.Date(c("2025-01-15","2025-01-25"))
+)
+  
+# Métricas diarias
+d <- metricas_longitudinales(pre, long, post, cutoff_days = 7, by = "dia")
+head(d)
+  
+# Métricas semanales
+w <- metricas_longitudinales(pre, long, post, cutoff_days = 7, by = "semana")
+w
+  
+}
+\seealso{
+\code{\link[=metricas_padron]{metricas_padron()}}, \code{\link[=retencion_semanas]{retencion_semanas()}}
+
+Other metricas: 
+\code{\link{retencion_semanas}()}
+}
+\concept{metricas}

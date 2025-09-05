@@ -16,11 +16,10 @@ Imports:
     stringi,
     tibble,
     tidyr,
-    lubridate,
     rlang,
+    utils,
     purrr,
-    ggplot2,
-    scales
+    stringdist
 Suggests: 
     knitr,
     rmarkdown,

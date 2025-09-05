@@ -2,29 +2,45 @@
 % Please edit documentation in R/FW-padron-participantes.R
 \name{padron_participantes}
 \alias{padron_participantes}
-\title{Padrón único de participantes (armonizado)}
+\title{Padrón único de participantes}
 \usage{
 padron_participantes(pre, long, post = NULL)
 }
 \arguments{
-\item{pre}{data.frame con columna \code{email} (fase PRE).}
+\item{pre}{data.frame con \code{email} y opcionalmente \code{name}/\code{nombre}.}
 
-\item{long}{data.frame con columnas \code{email} y \code{date} (fase LONG).}
+\item{long}{data.frame con \code{email}, \code{date} y opcionalmente \code{name}/\code{nombre}.}
 
-\item{post}{data.frame con columna \code{email} (fase POST). Opcional.}
+\item{post}{data.frame con \code{email} y opcionalmente \code{name}/\code{nombre}. Opcional.}
 }
 \value{
-data.frame con columnas:
+Tibble/data.frame con columnas:
 \itemize{
-\item email
-\item flag_pre, flag_long, flag_post
-\item n_long, first_long, last_long
+\item \code{email}
+\item \code{name_norm}
+\item \code{flag_pre}, \code{flag_long}, \code{flag_post}
+\item \code{n_long}, \code{first_long}, \code{last_long}
 }
 }
 \description{
-Devuelve una tabla con todos los emails únicos que aparezcan en PRE, LONG o POST,
-junto con flags y métricas básicas (sin dependencias auxiliares).
+Devuelve emails únicos que aparezcan en PRE, LONG o POST,
+con flags y métricas básicas.
+}
+\details{
+\itemize{
+\item \code{name_norm} se obtiene como el primer no-NA entre \code{pre$name_norm},
+\code{long$name_norm} y \code{post$name_norm} (en ese orden).
+\item \code{n_long} es el nº de filas LONG por email; \code{first_long}/\code{last_long} son la
+primera/última fecha LONG (clase \code{Date} cuando sea posible).
+}
 }
 \examples{
-# base_unica <- padron_participantes(pre, long, post)
+pre  <- data.frame(email = c("a@x.com","b@x.com"), name_norm = c("Ana", NA))
+long <- data.frame(email = c("a@x.com","a@x.com","c@x.com"),
+                   date  = as.Date(c("2025-01-01","2025-01-08","2025-02-01")),
+                   name_norm = c(NA,"Ana P.", "Carlos"))
+post <- data.frame(email = "d@x.com", name_norm = "Dana")
+padron <- padron_participantes(pre, long, post)
+head(padron)
+     
 }

@@ -49,6 +49,8 @@
 #' # res$pre; res$long
 #'
 #' @export
+#' @importFrom utils tail
+#' @importFrom rlang .data
 add_flags <- function(pre, long, post = NULL, summary_prefix = "long_") {
   # ---- comprobaciones mínimas
   stopifnot(

@@ -29,7 +29,7 @@
     cab <- sprintf("`%s` contiene duplicados por {%s}. Valores implicados:",
                    tolower(tag),
                    paste(cols, collapse = ", "))
-    cuerpo <- capture.output(print(keys, row.names = FALSE))
+    cuerpo <- utils::capture.output(print(keys, row.names = FALSE))
     warning(paste(c(cab, cuerpo), collapse = "\n"), call. = FALSE)
   } else {
     message(sprintf("`%s` pasó todas las validaciones.", tolower(tag)))
@@ -42,11 +42,13 @@
   sort(unique(x[duplicated(x) | duplicated(x, fromLast = TRUE)]))
 }
 
+# --- helper: pares duplicados (email, date) -----------------------
 .dupes_pairs <- function(df) {
-  # espera columnas email y date
-  dplyr::count(df, email, date, name = "n") |>
-    dplyr::filter(n > 1) |>
-    dplyr::arrange(dplyr::desc(n))
+  df |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c("email", "date")))) |>
+    dplyr::summarise(n = dplyr::n(), .groups = "drop") |>
+    dplyr::filter(.data$n > 1L) |>
+    dplyr::arrange(dplyr::desc(.data$n))
 }
 
 
@@ -152,6 +154,7 @@ check_cols_long <- function(long) {
 #' @param post data.frame con columnas `email` y `name`.
 #' @return (invisible) NULL
 #' @export
+#' @importFrom utils capture.output head
 #' @examples
 #' check_cols_post(data.frame(email="a@x.com", name="Ana"))
 check_cols_post <- function(post) {
