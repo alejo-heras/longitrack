@@ -11,7 +11,7 @@
 #' - **Normalización** de identificadores personales (emails, nombres).
 #' - **Renombrado** de variables según libro de códigos (variable, etiqueta, tipo).
 #' - **Chequeos y validación** de `email` en todos los módulos.
-#' - Corrección de emails según la distancia de Levenshtein y errores comunes al escribir el dominio.
+#' - **Corrección de emails** según la distancia de Levenshtein y errores comunes al escribir el dominio.
 #' - Construcción de un **padrón único de participantes** y **flags** de presencia por módulo.
 #' - **Métricas longitudinales** de participación, seguimiento y retención.
 #'
@@ -49,9 +49,8 @@
 #' # 2) Normalizar emails (cambia mayúsculas, acentos...)
 #' pre$email  <- normalizar_email(pre$email)
 #'
-#'
 #' # 4) Padrón, métricas longitudinales y curva de retención
-#' padron  <- padron_participantes(pre, long, post)
+#' padron <- padron_participantes(pre, long, post)
 #' m_long <- metricas_longitudinales(pre, long, post, periodo = 7, by = "dia")
 #' curva  <- retencion_semanas(long, 7)
 #' }

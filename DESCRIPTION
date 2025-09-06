@@ -2,7 +2,7 @@ Package: longitrack
 Title: Seguimiento de Trabajo de Campo Longitudinal
 Version: 0.0.0.9000
 Authors@R: 
-    person("Alejandro", "González Heras", "alejandro.gonzalez.heras@gmail.com", role = c("aut", "cre"))
+    person("Alejandro", "González Heras", , "alejandro.gonzalez.heras@gmail.com", role = c("aut", "cre"))
 Description: Herramientas para importar, normalizar y monitorizar datos de
     trabajo de campo cuantitativo longitudinal con tres módulos; (i) pretest,
     (ii) mediciones longitudinales en formato long (varias por persona) y (iii) postest.
