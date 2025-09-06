@@ -1,12 +1,14 @@
 Package: longitrack
-Title: Herramientas para el Seguimiento de Trabajo de Campo Longitudinal.
+Title: Seguimiento de Trabajo de Campo Longitudinal
 Version: 0.0.0.9000
 Authors@R: 
-    person("Alejandro", "González Heras", , "alejandro.gonzalez.heras@gmail.com", role = c("aut", "cre"))
-Description: Herramientas para importar, limpiar y monitorizar datos de trabajo
-    de campo cuantitativo longitudinal, incluyendo la normalización de emails y
-    nombres, la construcción de un padrón único de participantes, la exclusión
-    de casos, y el cálculo de métricas de participación, seguimiento y retención.
+    person("Alejandro", "González Heras", "alejandro.gonzalez.heras@gmail.com", role = c("aut", "cre"))
+Description: Herramientas para importar, normalizar y monitorizar datos de
+    trabajo de campo cuantitativo longitudinal con tres módulos; (i) pretest,
+    (ii) mediciones longitudinales en formato long (varias por persona) y (iii) postest.
+    Incluye renombrado de variables según diccionario, validación/corrección de emails,
+    construcción de un padrón único con flags y cálculo de métricas de
+    participación, seguimiento y retención.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -29,3 +31,5 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+URL: https://github.com/alejo-heras/longitrack
+BugReports: https://github.com/alejo-heras/longitrack/issues
