@@ -9,9 +9,9 @@
 Herramientas para \strong{importar}, \strong{normalizar} y \strong{monitorizar} trabajo de
 campo cuantitativo longitudinal con tres módulos:
 \itemize{
-\item \strong{Pretest} (uno por persona),
-\item \strong{Mediciones longitudinales} en \strong{formato long} (varias por persona en el tiempo),
-\item \strong{Postest} (uno por persona).
+\item \strong{Pretest} (uno por persona - cuestionario inicial),
+\item \strong{Mediciones longitudinales} en \strong{formato long} (varias por individuo en el tiempo),
+\item \strong{Postest} (uno por persona - cuestionario final).
 }
 }
 \details{

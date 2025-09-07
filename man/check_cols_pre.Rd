@@ -2,33 +2,21 @@
 % Please edit documentation in R/4-check-cols.R
 \name{check_cols_pre}
 \alias{check_cols_pre}
-\title{Check columnas PRE}
+\title{Validar columnas de PRE}
 \usage{
 check_cols_pre(pre)
 }
 \arguments{
-\item{pre}{data.frame con columnas \code{email} y \code{name}.}
+\item{pre}{data.frame con \code{email} y \code{name}}
 }
 \value{
 (invisible) NULL
 }
 \description{
-Verifica que un data.frame de tipo PRE cumpla:
+Requisitos:
 \itemize{
-\item Es un data.frame o tibble.
-\item Tiene columnas obligatorias: \code{email}, \code{name}.
-\item \code{email} es character.
-\item \code{email} no contiene valores vacíos ni NA.
+\item data.frame/tibble
+\item columnas: \code{email}, \code{name}
+\item \code{email} character y sin vacíos/NA
 }
-}
-\details{
-Lanza:
-\itemize{
-\item \strong{Error} si falta alguna columna, el tipo es incorrecto, o hay emails vacíos/NA.
-\item \strong{Warning} si hay emails duplicados.
-\item \strong{Message} confirmando validación exitosa si todo está bien.
-}
-}
-\examples{
-check_cols_pre(data.frame(email = "a@x.com", name = "Ana"))
 }

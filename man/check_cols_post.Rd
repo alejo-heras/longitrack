@@ -2,34 +2,21 @@
 % Please edit documentation in R/4-check-cols.R
 \name{check_cols_post}
 \alias{check_cols_post}
-\title{Check columnas POST}
+\title{Validar columnas de POST}
 \usage{
 check_cols_post(post)
 }
 \arguments{
-\item{post}{data.frame con columnas \code{email} y \code{name}.}
+\item{post}{data.frame con \code{email} y \code{name}}
 }
 \value{
 (invisible) NULL
 }
 \description{
-Verifica que un data.frame de tipo POST cumpla
-los mismos requisitos que PRE:
+Mismas reglas que PRE:
 \itemize{
-\item Es un data.frame o tibble.
-\item Tiene columnas \code{email}, \code{name}.
-\item \code{email} es character.
-\item \code{email} no contiene vacíos o NA.
+\item data.frame/tibble
+\item columnas: \code{email}, \code{name}
+\item \code{email} character y sin vacíos/NA
 }
-}
-\details{
-Lanza:
-\itemize{
-\item \strong{Error} si falla alguna condición.
-\item \strong{Warning} si hay emails duplicados.
-\item \strong{Message} confirmando validación exitosa si todo está bien.
-}
-}
-\examples{
-check_cols_post(data.frame(email="a@x.com", name="Ana"))
 }

@@ -2,9 +2,9 @@
 #'
 #' Herramientas para **importar**, **normalizar** y **monitorizar** trabajo de
 #' campo cuantitativo longitudinal con tres módulos:
-#' - **Pretest** (uno por persona),
-#' - **Mediciones longitudinales** en **formato long** (varias por persona en el tiempo),
-#' - **Postest** (uno por persona).
+#' - **Pretest** (uno por persona - cuestionario inicial),
+#' - **Mediciones longitudinales** en **formato long** (varias por individuo en el tiempo),
+#' - **Postest** (uno por persona - cuestionario final).
 #'
 #' Incluye:
 #' - **Importación** desde Google Sheets.

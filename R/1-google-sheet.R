@@ -1,22 +1,22 @@
 # ------------------------------------------------------------------
 # gs_auth(): autentica en Google Sheets con JSON de servicio
-# importar_gs(): lee pre/long/post (en es/en), opcionalmente mapea
-#   con renombrar_con_diccionario() y castea con class_dictionary().
+# importar_gs(): lee pre/long/post (en es/en), opcionalmente renombra
+#   con dic_renombrar_cols() y asigna tipos con dic_asignar_tipos().
 #
-# Pseudocódigo (importar_gs):
-# 1) Validar args (idioma(s), modulos) y estructura de urls.
+# Flujo (importar_gs):
+# 1) Validar args (idioma(s), módulos) y estructura de urls.
 # 2) Resolver diccionario:
-#    - NULL  -> cargar de path_diccionario (+ sheet_diccionario)
-#    - data.frame -> usar tal cual
-#    - character  -> tratar como ruta y cargar
-# 3) Para cada (idioma, módulo) pedido:
-#      - si falta URL => message y omitir
+#    - NULL        -> cargar de path_diccionario (+ sheet_diccionario)
+#    - data.frame  -> usar tal cual
+#    - character   -> tratar como ruta y cargar
+# 3) Para cada (idioma, módulo) solicitado:
+#      - si falta URL => informar y omitir
 #      - leer hoja de GSheets
 #      - (opcional) añadir columna idioma
-#      - (opcional) mapping -> renombrar_con_diccionario(...)
-#      - (opcional) cast    -> class_dictionary(...)
-# 4) Bind_rows por módulo (combinando idiomas).
-# 5) (opcional) check_cols_* por cada módulo presente (después de mapping/cast).
+#      - (opcional) renombrar columnas -> dic_renombrar_cols(...)
+#      - (opcional) asignar tipos       -> dic_asignar_tipos(...)
+# 4) Unir por módulo (combinando idiomas) con bind_rows.
+# 5) (opcional) check_cols_* por cada módulo presente (después de renombrar y asignar tipos).
 # 6) Devolver:
 #      - si 1 módulo: list(datos = <df>, mapeos = <por_idioma>)
 #      - si >1 módulo: list(pre = ..., long = ..., post = ...)
@@ -32,34 +32,34 @@ gs_auth <- function(path) {
   invisible(TRUE)
 }
 
-#' Importar (y opcionalmente mapear/castear) datos desde Google Sheets
+#' Importar datos desde Google Sheets (opcionalmente renombrar y asignar tipos)
 #'
 #' Lee cualquiera de los módulos `"pre"`, `"long"` y/o `"post"` en uno o dos
-#' idiomas. Omite automáticamente combinaciones idioma/módulo sin URL.
+#' idiomas. Omite automáticamente combinaciones idioma/módulo sin URL e informa.
 #'
-#' @param idioma "es", "en" o "both".
-#' @param modulos Vector con cualquiera de c("pre","long","post") o "all".
+#' @param idioma `"es"`, `"en"` o `"both"`.
+#' @param modulos Vector con cualquiera de `c("pre","long","post")` o `"all"`.
 #' @param urls Lista con estructura:
 #'   `list(es = list(pre=..., long=..., post=...), en = list(pre=..., long=..., post=...))`.
-#'   Las URLs ausentes se omiten sin error (se informa con `message()`).
+#'   Las URLs ausentes se omiten (se informa con mensajes).
 #' @param hoja Nombre de la hoja a leer en cada Google Sheet
-#'   (defecto "Respuestas de formulario 1").
+#'   (por defecto `"Respuestas de formulario 1"`).
 #' @param diccionario Puede ser:
-#'   - `NULL` (por defecto) → se carga `path_diccionario`/`sheet_diccionario`.
+#'   - `NULL` (por defecto) → se carga de `path_diccionario`/`sheet_diccionario`.
 #'   - `data.frame` → se usa directamente.
-#'   - `character` (ruta a archivo xlsx/csv) → se carga desde esa ruta.
-#'   Debe contener, como mínimo, columnas requeridas por las funciones
-#'   de mapeo/casteo (p.ej. `variable`/`etiqueta` para mapeo y `variable`/`tipo`
-#'   para casteo). Opcionalmente `idioma` y/o `modulo`.
+#'   - `character` (ruta a `.xlsx`/`.csv`) → se carga desde esa ruta.
+#'   Debe contener, como mínimo, las columnas que requieren las funciones de
+#'   renombrado y tipado (p.ej. `variable`/`etiqueta` para renombrar y `variable`/`tipo`
+#'   para tipos). Opcionalmente `idioma` y/o `modulo`.
 #' @param path_diccionario Ruta por defecto cuando `diccionario = NULL`
-#'   (defecto "diccionario.xlsx").
-#' @param sheet_diccionario Hoja si es Excel (nombre o índice). Por defecto 1.
+#'   (defecto `"diccionario.xlsx"`).
+#' @param sheet_diccionario Hoja si es Excel (nombre o índice). Por defecto `1`.
 #' @param add_idioma Si `TRUE`, añade columna `idioma` tras la lectura.
-#' @param mapping Si `TRUE`, aplica `renombrar_con_diccionario()`.
-#' @param mapping_verbose Si `TRUE`, imprime resúmenes de mapeo.
-#' @param cast Si `TRUE`, aplica `class_dictionary()` (tras el mapeo si lo hubo).
-#' @param check Si `TRUE`, valida estructuras mínimas con `check_cols_pre()`,
-#'   `check_cols_long()` y/o `check_cols_post()` **después** de mapping/cast
+#' @param renombrar Si `TRUE`, aplica `dic_renombrar_cols()`.
+#' @param renombrar_verbose Si `TRUE`, imprime resúmenes del renombrado.
+#' @param asignar_tipos Si `TRUE`, aplica `dic_asignar_tipos()` (tras el renombrado si lo hubo).
+#' @param validar Si `TRUE`, valida estructuras mínimas con `check_cols_pre()`,
+#'   `check_cols_long()` y/o `check_cols_post()` **después** de renombrar/tipar
 #'   y solo sobre los módulos efectivamente cargados.
 #'
 #' @return
@@ -73,17 +73,17 @@ gs_auth <- function(path) {
 #'   es = list(pre="https://...", long="https://..."),
 #'   en = list(pre="https://...")
 #' )
-#' # Solo PRE en español, sin mapeo/cast/check:
+#' # Solo PRE en español, sin renombrar/tipos/validación:
 #' importar_gs(idioma="es", modulos="pre", urls)
 #'
-#' # PRE+LONG en ambos idiomas, con mapeo y check (omite post si falta):
+#' # PRE+LONG en ambos idiomas, con renombrado y validación (omite post si falta):
 #' importar_gs(idioma="both", modulos=c("pre","long"), urls,
-#'             mapping=TRUE, cast=FALSE, check=TRUE)
+#'             renombrar=TRUE, asignar_tipos=FALSE, validar=TRUE)
 #'
-#' # ALL (pre,long,post) en ES, con mapeo+cast usando diccionario ya cargado:
+#' # ALL (pre,long,post) en ES, con renombrado+tipos usando diccionario ya cargado:
 #' dic <- readxl::read_excel("diccionario.xlsx", sheet = 1)
 #' importar_gs("es", "all", urls, diccionario = dic,
-#'             mapping=TRUE, cast=TRUE, check=TRUE)
+#'             renombrar=TRUE, asignar_tipos=TRUE, validar=TRUE)
 #' }
 #' @export
 #' @importFrom utils read.csv
@@ -95,75 +95,76 @@ importar_gs <- function(idioma = c("es","en","both"),
                         path_diccionario = "diccionario.xlsx",
                         sheet_diccionario = 1,
                         add_idioma = TRUE,
-                        mapping = TRUE,
-                        mapping_verbose = TRUE,
-                        cast = FALSE,
-                        check = FALSE) {
+                        renombrar = TRUE,
+                        renombrar_verbose = TRUE,
+                        asignar_tipos = FALSE,
+                        validar = FALSE) {
   
-  # -------- Args básicos --------
-  idioma  <- match.arg(idioma)
-  stopifnot(is.list(urls), all(c("es","en") %in% names(urls)))
+  # -------- Validación básica de argumentos --------
+  idioma <- match.arg(idioma)
+  
+  if (!is.list(urls) || !all(c("es","en") %in% names(urls))) {
+    cli::cli_abort("`urls` debe ser una lista con nombres {.val es} y {.val en}, cada uno con sublistas {.val pre}, {.val long}, {.val post}.")
+  }
   
   # Normalizar 'modulos'
-  if (length(modulos) == 1L && tolower(modulos) == "all") {
+  if (length(modulos) == 1L && is.character(modulos) && tolower(modulos) == "all") {
     modulos <- c("pre","long","post")
   } else {
-    # Validar valores
     ok <- modulos %in% c("pre","long","post")
     if (!all(ok)) {
-      stop("`modulos` debe ser 'all' o un subconjunto de c('pre','long','post').", call. = FALSE)
+      cli::cli_abort("`modulos` debe ser 'all' o un subconjunto de {.code c('pre','long','post')}.")
     }
     modulos <- unique(modulos)
   }
   
-  # -------- Resolver diccionario (solo si mapping o cast) --------
+  # -------- Resolver diccionario (solo si hay renombrado o tipado) --------
   dic <- NULL
-  if (isTRUE(mapping) || isTRUE(cast)) {
-    # Helper de carga
-    load_dic <- function(path, sheet) {
+  if (isTRUE(renombrar) || isTRUE(asignar_tipos)) {
+    
+    cargar_diccionario <- function(path, sheet) {
       ext <- tolower(tools::file_ext(path))
       if (ext %in% c("xlsx","xls")) {
         readxl::read_excel(path, sheet = sheet)
       } else if (ext == "csv") {
         utils::read.csv(path, stringsAsFactors = FALSE)
       } else {
-        stop("Extensión del diccionario no soportada: ", ext, call. = FALSE)
+        cli::cli_abort("Extensión de diccionario no soportada: {.val {ext}} (use .xlsx, .xls o .csv).")
       }
     }
     
     if (is.null(diccionario)) {
       if (!file.exists(path_diccionario)) {
-        stop("No se encuentra el diccionario en: ", path_diccionario, call. = FALSE)
+        cli::cli_abort("No se encontró el diccionario en {.path {path_diccionario}}.")
       }
-      # Si es Excel, validar hoja
       if (tolower(tools::file_ext(path_diccionario)) %in% c("xlsx","xls")) {
         sheets <- readxl::excel_sheets(path_diccionario)
         ok_sheet <- (is.numeric(sheet_diccionario) && sheet_diccionario %in% seq_along(sheets)) ||
           (is.character(sheet_diccionario) && sheet_diccionario %in% sheets)
         if (!ok_sheet) {
-          stop("La hoja '", sheet_diccionario, "' no existe. Hojas: ",
-               paste(sheets, collapse = ", "), call. = FALSE)
+          cli::cli_abort("La hoja {.val {sheet_diccionario}} no existe en el diccionario. Hojas disponibles: {paste(sheets, collapse = ', ')}.")
         }
       }
-      dic <- load_dic(path_diccionario, sheet_diccionario)
+      dic <- cargar_diccionario(path_diccionario, sheet_diccionario)
       
     } else if (is.data.frame(diccionario)) {
       dic <- diccionario
       
     } else if (is.character(diccionario) && length(diccionario) == 1L) {
       if (!file.exists(diccionario)) {
-        stop("No se encontró el diccionario en: ", diccionario, call. = FALSE)
+        cli::cli_abort("No se encontró el diccionario en {.path {diccionario}}.")
       }
-      dic <- load_dic(diccionario, sheet_diccionario)
+      dic <- cargar_diccionario(diccionario, sheet_diccionario)
       
     } else {
-      stop("`diccionario` debe ser NULL, data.frame o una ruta a archivo.", call. = FALSE)
+      cli::cli_abort("`diccionario` debe ser NULL, un data.frame o una ruta a archivo (.xlsx/.xls/.csv).")
     }
   }
   
   # -------- Parámetros comunes --------
   idiomas <- if (idioma == "both") c("es","en") else idioma
-  mod_map <- c(pre = "pretest", long = "seguimiento", post = "postest")  # etiqueta 'modulo' en dic
+  # etiqueta 'modulo' (si el diccionario la usa)
+  modulo_etiqueta <- c(pre = "pretest", long = "seguimiento", post = "postest")
   
   get_url <- function(idm, mod) {
     x <- tryCatch(urls[[idm]][[mod]], error = function(e) NULL)
@@ -175,7 +176,7 @@ importar_gs <- function(idioma = c("es","en","both"),
     list(
       cols_no_renombradas = character(0),
       vars_no_encontradas = character(0),
-      resumen = sprintf("Mapping desactivado (mapping = FALSE) para %s/%s.", idm, mod)
+      resumen = sprintf("Renombrado desactivado (renombrar = FALSE) para %s/%s.", idm, mod)
     )
   }
   
@@ -183,7 +184,7 @@ importar_gs <- function(idioma = c("es","en","both"),
   leer_unit <- function(idm, mod) {
     u <- get_url(idm, mod)
     if (is.null(u)) {
-      message(sprintf("Omitiendo %s/%s: URL no proporcionada.", idm, mod))
+      cli::cli_inform("Omitiendo {idm}/{mod}: URL no proporcionada.")
       return(NULL)
     }
     
@@ -191,26 +192,26 @@ importar_gs <- function(idioma = c("es","en","both"),
     
     if (isTRUE(add_idioma)) df$idioma <- idm
     
-    # Mapping
-    if (!isTRUE(mapping)) {
+    # Renombrado de columnas
+    if (!isTRUE(renombrar)) {
       out <- c(list(datos = df), resumen_skip(idm, mod))
     } else {
-      out <- renombrar_con_diccionario(
+      out <- dic_renombrar_cols(
         datos       = df,
         diccionario = dic,
         idioma      = idm,
-        modulo      = unname(mod_map[[mod]]),
+        modulo      = unname(modulo_etiqueta[[mod]]),
         verbose     = FALSE
       )
     }
     
-    # Cast
-    if (isTRUE(cast)) {
-      out$datos <- class_dictionary(
+    # Asignación de tipos
+    if (isTRUE(asignar_tipos)) {
+      out$datos <- dic_asignar_tipos(
         datos       = out$datos,
         diccionario = dic,
         idioma      = idm,
-        modulo      = unname(mod_map[[mod]])
+        modulo      = unname(modulo_etiqueta[[mod]])
       )
     }
     
@@ -221,23 +222,22 @@ importar_gs <- function(idioma = c("es","en","both"),
   
   # -------- Ejecutar por módulo --------
   build_modulo <- function(mod) {
-    # leer por idioma, omitiendo NULLs
     res_list <- stats::setNames(lapply(idiomas, leer_unit, mod = mod), idiomas)
     res_list <- Filter(Negate(is.null), res_list)
     if (!length(res_list)) {
-      message(sprintf("No se cargaron datos para '%s'.", mod))
+      cli::cli_inform("No se cargaron datos para el módulo {.val {mod}}.")
       return(NULL)
     }
     
-    # bind de datos por idioma
+    # Unir datos por idioma
     df <- dplyr::bind_rows(lapply(res_list, `[[`, "datos"))
     
-    if (isTRUE(mapping_verbose) && isTRUE(mapping)) {
+    if (isTRUE(renombrar_verbose) && isTRUE(renombrar)) {
       cat(paste(vapply(res_list, function(z) z$resumen, ""), collapse = "\n\n"), "\n\n")
     }
     
-    # check (después de mapping/cast)
-    if (isTRUE(check)) {
+    # Validación (después de renombrar / asignar tipos)
+    if (isTRUE(validar)) {
       if (mod == "pre")  check_cols_pre(df)
       if (mod == "long") check_cols_long(df)
       if (mod == "post") check_cols_post(df)
@@ -250,8 +250,7 @@ importar_gs <- function(idioma = c("es","en","both"),
   if (length(modulos) == 1L) {
     mod_res <- build_modulo(modulos)
     if (is.null(mod_res)) {
-      stop(sprintf("No se pudo cargar el módulo '%s' (no había ninguna URL válida).", modulos),
-           call. = FALSE)
+      cli::cli_abort("No se pudo cargar el módulo {.val {modulos}} (no había ninguna URL válida).")
     }
     return(mod_res)
   }
@@ -259,10 +258,11 @@ importar_gs <- function(idioma = c("es","en","both"),
   # Varios módulos
   out <- lapply(modulos, build_modulo)
   names(out) <- modulos
-  # Quitar los NULL (módulos vacíos)
-  out <- Filter(Negate(is.null), out)
+  out <- Filter(Negate(is.null), out) # quitar módulos vacíos
+  
   if (!length(out)) {
-    stop("No se pudo cargar ningún módulo (revisa URLs/idiomas).", call. = FALSE)
+    cli::cli_abort("No se pudo cargar ningún módulo (revisa URLs/idiomas).")
   }
+  
   out
 }

@@ -2,34 +2,22 @@
 % Please edit documentation in R/4-check-cols.R
 \name{check_cols_long}
 \alias{check_cols_long}
-\title{Check columnas LONG}
+\title{Validar columnas de LONG}
 \usage{
 check_cols_long(long)
 }
 \arguments{
-\item{long}{data.frame con columnas \code{email} y \code{date}.}
+\item{long}{data.frame con \code{email} y \code{date}}
 }
 \value{
 (invisible) NULL
 }
 \description{
-Verifica que un data.frame de tipo LONG cumpla:
+Requisitos:
 \itemize{
-\item Es un data.frame o tibble.
-\item Tiene columnas obligatorias: \code{email}, \code{date}.
-\item \code{email} es character.
-\item \code{date} es de clase Date o POSIXt.
-\item \code{email} no contiene valores vacíos ni NA.
+\item data.frame/tibble
+\item columnas: \code{email}, \code{date}
+\item \code{email} character; \code{date} clase Date o POSIXt
+\item \code{email} sin vacíos/NA
 }
-}
-\details{
-Lanza:
-\itemize{
-\item \strong{Error} si falta alguna columna, los tipos son incorrectos, o hay emails vacíos/NA.
-\item \strong{Warning} si hay filas duplicadas en la combinación (\code{email}, \code{date}).
-\item \strong{Message} confirmando validación exitosa si todo está bien.
-}
-}
-\examples{
-check_cols_long(data.frame(email="a@x.com", date=as.Date("2025-01-01")))
 }

@@ -5,9 +5,9 @@ Authors@R:
     person("Alejandro", "González Heras", , "alejandro.gonzalez.heras@gmail.com", role = c("aut", "cre"))
 Description: Herramientas para importar, normalizar y monitorizar datos de
     trabajo de campo cuantitativo longitudinal con tres módulos; (i) pretest,
-    (ii) mediciones longitudinales en formato long (varias por persona) y (iii) postest.
+    (ii) mediciones longitudinales en formato largo (varias mediciones por persona) y (iii) postest.
     Incluye renombrado de variables según diccionario, validación/corrección de emails,
-    construcción de un padrón único con flags y cálculo de métricas de
+    construcción de un padrón de participantes únicos y cálculo de métricas de
     participación, seguimiento y retención.
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -33,3 +33,6 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/alejo-heras/longitrack
 BugReports: https://github.com/alejo-heras/longitrack/issues
+Depends: 
+    R (>= 3.5)
+LazyData: true
