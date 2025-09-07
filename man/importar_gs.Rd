@@ -2,7 +2,7 @@
 % Please edit documentation in R/1-google-sheet.R
 \name{importar_gs}
 \alias{importar_gs}
-\title{Importar (y opcionalmente mapear/castear) datos desde Google Sheets}
+\title{Importar datos desde Google Sheets (opcionalmente renombrar y asignar tipos)}
 \usage{
 importar_gs(
   idioma = c("es", "en", "both"),
@@ -13,49 +13,49 @@ importar_gs(
   path_diccionario = "diccionario.xlsx",
   sheet_diccionario = 1,
   add_idioma = TRUE,
-  mapping = TRUE,
-  mapping_verbose = TRUE,
-  cast = FALSE,
-  check = FALSE
+  renombrar = TRUE,
+  renombrar_verbose = TRUE,
+  asignar_tipos = FALSE,
+  validar = FALSE
 )
 }
 \arguments{
-\item{idioma}{"es", "en" o "both".}
+\item{idioma}{\code{"es"}, \code{"en"} o \code{"both"}.}
 
-\item{modulos}{Vector con cualquiera de c("pre","long","post") o "all".}
+\item{modulos}{Vector con cualquiera de \code{c("pre","long","post")} o \code{"all"}.}
 
 \item{urls}{Lista con estructura:
 \code{list(es = list(pre=..., long=..., post=...), en = list(pre=..., long=..., post=...))}.
-Las URLs ausentes se omiten sin error (se informa con \code{message()}).}
+Las URLs ausentes se omiten (se informa con mensajes).}
 
 \item{hoja}{Nombre de la hoja a leer en cada Google Sheet
-(defecto "Respuestas de formulario 1").}
+(por defecto \code{"Respuestas de formulario 1"}).}
 
 \item{diccionario}{Puede ser:
 \itemize{
-\item \code{NULL} (por defecto) → se carga \code{path_diccionario}/\code{sheet_diccionario}.
+\item \code{NULL} (por defecto) → se carga de \code{path_diccionario}/\code{sheet_diccionario}.
 \item \code{data.frame} → se usa directamente.
-\item \code{character} (ruta a archivo xlsx/csv) → se carga desde esa ruta.
-Debe contener, como mínimo, columnas requeridas por las funciones
-de mapeo/casteo (p.ej. \code{variable}/\code{etiqueta} para mapeo y \code{variable}/\code{tipo}
-para casteo). Opcionalmente \code{idioma} y/o \code{modulo}.
+\item \code{character} (ruta a \code{.xlsx}/\code{.csv}) → se carga desde esa ruta.
+Debe contener, como mínimo, las columnas que requieren las funciones de
+renombrado y tipado (p.ej. \code{variable}/\code{etiqueta} para renombrar y \code{variable}/\code{tipo}
+para tipos). Opcionalmente \code{idioma} y/o \code{modulo}.
 }}
 
 \item{path_diccionario}{Ruta por defecto cuando \code{diccionario = NULL}
-(defecto "diccionario.xlsx").}
+(defecto \code{"diccionario.xlsx"}).}
 
-\item{sheet_diccionario}{Hoja si es Excel (nombre o índice). Por defecto 1.}
+\item{sheet_diccionario}{Hoja si es Excel (nombre o índice). Por defecto \code{1}.}
 
 \item{add_idioma}{Si \code{TRUE}, añade columna \code{idioma} tras la lectura.}
 
-\item{mapping}{Si \code{TRUE}, aplica \code{renombrar_con_diccionario()}.}
+\item{renombrar}{Si \code{TRUE}, aplica \code{dic_renombrar_cols()}.}
 
-\item{mapping_verbose}{Si \code{TRUE}, imprime resúmenes de mapeo.}
+\item{renombrar_verbose}{Si \code{TRUE}, imprime resúmenes del renombrado.}
 
-\item{cast}{Si \code{TRUE}, aplica \code{class_dictionary()} (tras el mapeo si lo hubo).}
+\item{asignar_tipos}{Si \code{TRUE}, aplica \code{dic_asignar_tipos()} (tras el renombrado si lo hubo).}
 
-\item{check}{Si \code{TRUE}, valida estructuras mínimas con \code{check_cols_pre()},
-\code{check_cols_long()} y/o \code{check_cols_post()} \strong{después} de mapping/cast
+\item{validar}{Si \code{TRUE}, valida estructuras mínimas con \code{check_cols_pre()},
+\code{check_cols_long()} y/o \code{check_cols_post()} \strong{después} de renombrar/tipar
 y solo sobre los módulos efectivamente cargados.}
 }
 \value{
@@ -67,7 +67,7 @@ y solo sobre los módulos efectivamente cargados.}
 }
 \description{
 Lee cualquiera de los módulos \code{"pre"}, \code{"long"} y/o \code{"post"} en uno o dos
-idiomas. Omite automáticamente combinaciones idioma/módulo sin URL.
+idiomas. Omite automáticamente combinaciones idioma/módulo sin URL e informa.
 }
 \examples{
 \dontrun{
@@ -75,16 +75,16 @@ urls <- list(
   es = list(pre="https://...", long="https://..."),
   en = list(pre="https://...")
 )
-# Solo PRE en español, sin mapeo/cast/check:
+# Solo PRE en español, sin renombrar/tipos/validación:
 importar_gs(idioma="es", modulos="pre", urls)
 
-# PRE+LONG en ambos idiomas, con mapeo y check (omite post si falta):
+# PRE+LONG en ambos idiomas, con renombrado y validación (omite post si falta):
 importar_gs(idioma="both", modulos=c("pre","long"), urls,
-            mapping=TRUE, cast=FALSE, check=TRUE)
+            renombrar=TRUE, asignar_tipos=FALSE, validar=TRUE)
 
-# ALL (pre,long,post) en ES, con mapeo+cast usando diccionario ya cargado:
+# ALL (pre,long,post) en ES, con renombrado+tipos usando diccionario ya cargado:
 dic <- readxl::read_excel("diccionario.xlsx", sheet = 1)
 importar_gs("es", "all", urls, diccionario = dic,
-            mapping=TRUE, cast=TRUE, check=TRUE)
+            renombrar=TRUE, asignar_tipos=TRUE, validar=TRUE)
 }
 }
