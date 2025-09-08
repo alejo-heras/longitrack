@@ -12,14 +12,10 @@ vignette: >
 ---
 
 ```{r eval=FALSE, include=FALSE}
-# El output original preferido en CRAN
-# Es más ligero
-
 output: 
   rmarkdown::html_vignette:
   toc: true
 ```
-
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -87,9 +83,9 @@ En esta vignette, trabajremos con datos ficticios incluidos en el paquete.
 Para mayor comodidad, los renombramos como `pre`, `long` y `post`.
 
 ```{r}
-data(pre)
-data(long)
-data(post)
+pre  <- longitrack::pre
+long <- longitrack::long
+post <- longitrack::post
 ```
 
 El dataset `pre` contiene nombres y direcciones de correo con errores intencionales, lo que permite ilustrar el procedimiento completo de chequeo y normalización.
