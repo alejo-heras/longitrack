@@ -75,60 +75,75 @@ metricas_longitudinales <- function(pre, long,
                                     cutoff_days = 7,
                                     by = c("dia","semana")) {
   by <- match.arg(by)
-  # Validaciones mínimas
+  
   stopifnot(all(c("email","date") %in% names(pre)))
   stopifnot(all(c("email","date") %in% names(long)))
   
-  # Si post es NULL, crea un df vacío compatible
+  # Si post es NULL -> tibble vacío compatible
   if (is.null(post)) {
     post <- tibble::tibble(email = character(), date = as.Date(character()))
   } else {
     stopifnot(all(c("email","date") %in% names(post)))
   }
   
-  # Fechas a Date y limpieza mínima
-  pre  <- dplyr::mutate(pre,  date = as.Date(.data$date))  |>
-    dplyr::filter(!is.na(.data$email), !is.na(.data$date))
-  long <- dplyr::mutate(long, date = as.Date(.data$date)) |>
-    dplyr::filter(!is.na(.data$email), !is.na(.data$date))
-  post <- dplyr::mutate(post, date = as.Date(.data$date)) |>
-    dplyr::filter(!is.na(.data$email), !is.na(.data$date))
+  # Limpieza mínima
+  pre  <- dplyr::mutate(pre,  date = as.Date(.data$date))  |> dplyr::filter(!is.na(.data$email), !is.na(.data$date))
+  long <- dplyr::mutate(long, date = as.Date(.data$date))  |> dplyr::filter(!is.na(.data$email), !is.na(.data$date))
+  post <- dplyr::mutate(post, date = as.Date(.data$date))  |> dplyr::filter(!is.na(.data$email), !is.na(.data$date))
   
+  has_post <- nrow(post) > 0L
   
+  # Rango temporal
+  fechas <- c(pre$date, long$date, post$date)
+  if (length(fechas) == 0L) {
+    return(tibble::tibble(
+      fecha = as.Date(character()),
+      n_pre = integer(), n_pre_acum = integer(),
+      n_long_dia = integer(), n_long_average = numeric(), n_long_acum = integer(), n_long_personas = integer(),
+      n_post = integer(), n_post_acum = integer(),
+      n_pre_no_long = integer(), n_long_no_pre = integer(),
+      n_long_post_acum = integer(), n_completos = integer(),
+      activos = integer(), abandono = integer()
+    ))
+  }
+  eje <- tibble::tibble(fecha = seq(min(fechas, na.rm=TRUE), max(fechas, na.rm=TRUE), by = "day"))
   
-  # Rango temporal (unión de fechas)
-  min_d <- min(c(pre$date, long$date, post$date), na.rm = TRUE)
-  max_d <- max(c(pre$date, long$date, post$date), na.rm = TRUE)
-  rango <- seq(min_d, max_d, by = "day")
-  eje   <- tibble::tibble(fecha = rango)
-  
-  # Primeras y últimas por persona
+  # Primeras/últimas
   pre_first   <- pre  |> dplyr::group_by(.data$email) |>
     dplyr::summarise(pre_first  = min(.data$date), .groups = "drop")
   long_bounds <- long |> dplyr::group_by(.data$email) |>
     dplyr::summarise(long_first = min(.data$date),
                      long_last  = max(.data$date), .groups = "drop")
-  post_first  <- post |> dplyr::group_by(.data$email) |>
-    dplyr::summarise(post_first = min(.data$date), .groups = "drop")
   
-  # Flujos por día
-  pre_day  <- dplyr::count(pre,  .data$date, name = "n_pre")
-  long_day <- dplyr::count(long, .data$date, name = "n_long_dia")
-  post_day <- dplyr::count(post, .data$date, name = "n_post")
+  # ----- BLOQUE POST ROBUSTO -----
+  if (has_post) {
+    post_first  <- post |> dplyr::group_by(.data$email) |>
+      dplyr::summarise(post_first = min(.data$date), .groups = "drop")
+    post_day    <- dplyr::count(post, .data$date, name = "n_post")
+    post_new_day <- dplyr::count(post_first, .data$post_first, name = "post_new")
+    long_post_both <- dplyr::inner_join(long_bounds, post_first, by = "email") |>
+      dplyr::mutate(day = pmax(.data$long_first, .data$post_first)) |>
+      dplyr::count(.data$day, name = "long_post_new")
+  } else {
+    post_first      <- tibble::tibble(email = character(), post_first = as.Date(character()))
+    post_day        <- tibble::tibble(date  = as.Date(character()), n_post = integer())
+    post_new_day    <- tibble::tibble(post_first = as.Date(character()), post_new = integer())
+    long_post_both  <- tibble::tibble(day = as.Date(character()), long_post_new = integer())
+  }
+  # --------------------------------
   
-  # Nuevos por día (primeras ocurrencias por persona)
+  # Flujos por día (pre/long)
+  pre_day   <- dplyr::count(pre,  .data$date, name = "n_pre")
+  long_day  <- dplyr::count(long, .data$date, name = "n_long_dia")
+  
+  # Nuevos por día (primeras ocurrencias)
   pre_new_day  <- dplyr::count(pre_first,   .data$pre_first,  name = "pre_new")
   long_new_day <- dplyr::count(long_bounds, .data$long_first, name = "long_new")
-  post_new_day <- dplyr::count(post_first,  .data$post_first, name = "post_new")
   
-  # Intersecciones: día en que "cumplen ambos" = max(fecha_primera_x, fecha_primera_y)
+  # Intersecciones sin POST y con POST (esta última ya es vacía si no hay post)
   pre_long_both <- dplyr::inner_join(pre_first, long_bounds, by = "email") |>
     dplyr::mutate(day = pmax(.data$pre_first, .data$long_first)) |>
     dplyr::count(.data$day, name = "pre_long_new")
-  
-  long_post_both <- dplyr::inner_join(long_bounds, post_first, by = "email") |>
-    dplyr::mutate(day = pmax(.data$long_first, .data$post_first)) |>
-    dplyr::count(.data$day, name = "long_post_new")
   
   completos_new <- pre_first |>
     dplyr::inner_join(long_bounds, by = "email") |>
@@ -136,23 +151,23 @@ metricas_longitudinales <- function(pre, long,
     dplyr::mutate(day = pmax(.data$pre_first, pmax(.data$long_first, .data$post_first))) |>
     dplyr::count(.data$day, name = "completos_new")
   
-  # Salidas (abandono) en (last + cutoff_days)
+  # Abandonos
   exits_day <- long_bounds |>
     dplyr::mutate(exit = .data$long_last + cutoff_days) |>
     dplyr::count(.data$exit, name = "aband_exits")
   
-  # Ensamblado diario (joins + NA→0 + cumsum)
+  # Ensamblado diario
   daily <- eje |>
-    dplyr::left_join(pre_day,       by = c("fecha" = "date")) |>
-    dplyr::left_join(long_day,      by = c("fecha" = "date")) |>
-    dplyr::left_join(post_day,      by = c("fecha" = "date")) |>
-    dplyr::left_join(pre_new_day,   by = c("fecha" = "pre_first")) |>
-    dplyr::left_join(long_new_day,  by = c("fecha" = "long_first")) |>
-    dplyr::left_join(post_new_day,  by = c("fecha" = "post_first")) |>
-    dplyr::left_join(pre_long_both, by = c("fecha" = "day")) |>
-    dplyr::left_join(long_post_both,by = c("fecha" = "day")) |>
-    dplyr::left_join(completos_new, by = c("fecha" = "day")) |>
-    dplyr::left_join(exits_day,     by = c("fecha" = "exit")) |>
+    dplyr::left_join(pre_day,        by = c("fecha" = "date")) |>
+    dplyr::left_join(long_day,       by = c("fecha" = "date")) |>
+    dplyr::left_join(post_day,       by = c("fecha" = "date")) |>
+    dplyr::left_join(pre_new_day,    by = c("fecha" = "pre_first")) |>
+    dplyr::left_join(long_new_day,   by = c("fecha" = "long_first")) |>
+    dplyr::left_join(post_new_day,   by = c("fecha" = "post_first")) |>
+    dplyr::left_join(pre_long_both,  by = c("fecha" = "day")) |>
+    dplyr::left_join(long_post_both, by = c("fecha" = "day")) |>
+    dplyr::left_join(completos_new,  by = c("fecha" = "day")) |>
+    dplyr::left_join(exits_day,      by = c("fecha" = "exit")) |>
     tidyr::replace_na(list(
       n_pre = 0L, n_long_dia = 0L, n_post = 0L,
       pre_new = 0L, long_new = 0L, post_new = 0L,
@@ -160,19 +175,14 @@ metricas_longitudinales <- function(pre, long,
       aband_exits = 0L
     )) |>
     dplyr::mutate(
-      # Acumulados de flujos
       n_pre_acum       = cumsum(.data$n_pre),
       n_long_acum      = cumsum(.data$n_long_dia),
       n_post_acum      = cumsum(.data$n_post),
-      # Promedio
-      n_long_average  = dplyr::cummean(.data$n_long_dia),
-      # Personas con primera LONG
+      n_long_average   = dplyr::cummean(.data$n_long_dia),
       n_long_personas  = cumsum(.data$long_new),
-      # Intersecciones acumuladas
       pre_long_cum     = cumsum(.data$pre_long_new),
       n_long_post_acum = cumsum(.data$long_post_new),
       n_completos      = cumsum(.data$completos_new),
-      # Stocks derivados
       n_pre_no_long    = cumsum(.data$pre_new)  - .data$pre_long_cum,
       n_long_no_pre    = cumsum(.data$long_new) - .data$pre_long_cum,
       abandono         = cumsum(.data$aband_exits),
@@ -190,7 +200,6 @@ metricas_longitudinales <- function(pre, long,
   
   if (by == "dia") return(daily)
   
-  # Semanal: sumar flujos; tomar último para stocks
   weekly <- daily |>
     dplyr::mutate(semana_inicio = as.Date(cut(.data$fecha, "week"))) |>
     dplyr::arrange(.data$fecha) |>
@@ -213,7 +222,7 @@ metricas_longitudinales <- function(pre, long,
       .groups = "drop"
     ) |>
     dplyr::mutate(fecha = .data$semana_inicio) |>
-    dplyr::select(-dplyr::all_of("semana_inicio")) |>
+    dplyr::select(-"semana_inicio") |>
     dplyr::select(dplyr::all_of(c(
       "fecha",
       "n_pre", "n_pre_acum",
