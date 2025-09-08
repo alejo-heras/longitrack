@@ -252,21 +252,39 @@ La función `normalizar_nombre()` genera una nueva variable `name_norm` a partir
 
 Durante el proceso elimina acentos, convierte a minúsculas y limpia espacios extra, de forma que los nombres quedan estandarizados. 
 
-
-```{r eval=FALSE, include=FALSE}
-# normalizar nombres en una nueva variable "name_norm"
-
-# ERROR AL COMPILAR
+```{r}
 data[c("pre", "long", "post")] <- map(
   data[c("pre", "long", "post")],
   ~ { .x$name_norm <- normalizar_nombre(.x$name); .x }
 )
 ```
 
-```{r}
-data$pre$name_norm <- normalizar_nombre(data$pre$name)
+Veamos, por ejemplo, el resultado en la variable `name` del pretest
 
+```{r}
 data$pre[,c("name", "name_norm")]
 ```
 
+# Seguimiento del trabajo de campo
 
+Una vez revisado y validado el email de cada participante, ya se puede crear el padrón de participantes únicos con `padron_participantes()`.
+
+Este padrón unifica la información procedente de los tres módulos (pretest, mediciones longitudinales y postest), asignando a cada email único:
+
+* un nombre normalizado (`name_norm`),
+
+* las flags de presencia en cada módulo (`flag_pre`, `flag_long`, `flag_post`),
+
+* y métricas básicas como número de mediciones longitudinales (`n_long`), fecha de la primera y última medición observada (`first_long`, `last_long`).
+
+A partir de este padrón es posible generar perfiles de respondientes (p. ej. quienes hicieron pretest pero aún no tienen ninguna medición longitudinal, quienes abandonaron después de cierto tiempo, etc.) y organizar acciones de seguimiento como envíos de recordatorios.
+
+La función `metricas_longitudinales()`permite calcular indicadores de participación a lo largo del tiempo, ya sea por día o por semana. Entre otros:
+
+* número de cuestionarios completados por módulo (pre/long/post),
+
+* número acumulado de personas que participan,
+
+* número de personas activas en cada fecha,
+
+Además, `metricas_padron()` resume las métricas clave directamente a partir del padrón (ej. número de participantes activos vs. abandonos), y `retencion_semanas()` estima de forma sencilla la fracción de participantes retenidos en cada semana del seguimiento.
