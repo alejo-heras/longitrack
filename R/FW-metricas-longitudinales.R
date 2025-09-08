@@ -70,13 +70,21 @@
 #' @importFrom dplyr mutate filter group_by summarise count inner_join left_join arrange last select all_of
 #' @importFrom tidyr replace_na
 #' @importFrom rlang .data
-metricas_longitudinales <- function(pre, long, post,
+metricas_longitudinales <- function(pre, long, 
+                                    post = NULL,
                                     cutoff_days = 7,
                                     by = c("dia","semana")) {
   by <- match.arg(by)
-  stopifnot(all(c("email","date") %in% names(pre)),
-            all(c("email","date") %in% names(long)),
-            all(c("email","date") %in% names(post)))
+  # Validaciones mínimas
+  stopifnot(all(c("email","date") %in% names(pre)))
+  stopifnot(all(c("email","date") %in% names(long)))
+  
+  # Si post es NULL, crea un df vacío compatible
+  if (is.null(post)) {
+    post <- tibble::tibble(email = character(), date = as.Date(character()))
+  } else {
+    stopifnot(all(c("email","date") %in% names(post)))
+  }
   
   # Fechas a Date y limpieza mínima
   pre  <- dplyr::mutate(pre,  date = as.Date(.data$date))  |>
@@ -85,6 +93,8 @@ metricas_longitudinales <- function(pre, long, post,
     dplyr::filter(!is.na(.data$email), !is.na(.data$date))
   post <- dplyr::mutate(post, date = as.Date(.data$date)) |>
     dplyr::filter(!is.na(.data$email), !is.na(.data$date))
+  
+  
   
   # Rango temporal (unión de fechas)
   min_d <- min(c(pre$date, long$date, post$date), na.rm = TRUE)

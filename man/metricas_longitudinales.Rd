@@ -7,7 +7,7 @@
 metricas_longitudinales(
   pre,
   long,
-  post,
+  post = NULL,
   cutoff_days = 7,
   by = c("dia", "semana")
 )
