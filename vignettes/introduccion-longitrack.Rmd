@@ -267,6 +267,8 @@ data$pre[,c("name", "name_norm")]
 
 # Seguimiento del trabajo de campo
 
+## Padrón de participantes únicos
+
 Una vez revisado y validado el email de cada participante, ya se puede crear el padrón de participantes únicos con `padron_participantes()`.
 
 Este padrón unifica la información procedente de los tres módulos (pretest, mediciones longitudinales y postest), asignando a cada email único:
@@ -278,6 +280,28 @@ Este padrón unifica la información procedente de los tres módulos (pretest, m
 * y métricas básicas como número de mediciones longitudinales (`n_long`), fecha de la primera y última medición observada (`first_long`, `last_long`).
 
 A partir de este padrón es posible generar perfiles de respondientes (p. ej. quienes hicieron pretest pero aún no tienen ninguna medición longitudinal, quienes abandonaron después de cierto tiempo, etc.) y organizar acciones de seguimiento como envíos de recordatorios.
+
+## Perfiles
+
+Los perfiles más habituales son los siguientes:
+
+```{r eval=FALSE, echo=TRUE}
+perfiles <- list(
+  no_long  = filter(padron,  flag_pre & !flag_long),
+  no_pre   = filter(padron, !flag_pre &  flag_long),
+  abandono = filter(padron,  flag_pre, !is.na(last_long), last_long <= Sys.Date() - 7),
+  completo = filter(padron,  flag_pre, !is.na(last_long), last_long >= Sys.Date() - 6)
+)
+```
+
+Los perfiles se definen en función de:
+* Si han completado el pretest o no.
+* Si han completado el pretest, si han realizado al menos una medición o no.
+* Si han realizado al menos una medición, si hace más de siete días (abandono) o no (activos).
+
+De esta forma, los perfiles son: (i) no ha realizado pretest (*pretest_no*); (ii) ha realizado pretest, pero ninguna medición longitudinal (*long_no*); (iii) tiene pretest y mediciones longitudinales, pero de hace más de siete días (*abandono*); (iv) tiene el pretest completado y la última medición es de hace menos de siete días (*activo*)
+
+## Métricas
 
 La función `metricas_longitudinales()`permite calcular indicadores de participación a lo largo del tiempo, ya sea por día o por semana. Entre otros:
 
