@@ -30,31 +30,235 @@ knitr::opts_chunk$set(
 
 # Instalación
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
 # Instalar desde GitHub
 # remotes::install_github("alejo-heras/longitrack")
 library(longitrack)
+library(dplyr)
+library(purrr)
 ```
 
-# Importar y procesar
+# Esquema de importación (sólo ilustrativo)
 
-## Google Sheets
+El workflow habitual implica tres pasos iniciales:
 
-## Mapeo
+1. Autenticación: `gs_auth()` apunta al archivo de credenciales para acceder a Google Sheets.
+
+2. URLs: `urls` es una lista que contiene las urls de cada hoja de cálculo.
+
+3. Importación: `importar_gs()` descarga y organiza los datos en una lista. Opcionalmente:
+
+- renombra variables según un diccionario,
+
+- asigna clases de columnas (fechas, textos, lógicos),
+
+- valida que en todos los módulos existan las variables clave (`name`, `date`, `email`).
+
+```{r eval=FALSE, include=TRUE}
+gs_auth("C:/.../credenciales.json")
+
+urls <- list(
+  es = list(pre  = "https://docs.google.com/spreadsheets/...",
+            long = "https://docs.google.com/spreadsheets/...",
+            post = "https://docs.google.com/spreadsheets/..."),
+  en = list(pre  = "https://docs.google.com/spreadsheets/...",
+            long = "https://docs.google.com/spreadsheets/...")
+)
+
+data <- importar_gs(
+  idioma        = "es",
+  modulos       = "all",
+  urls          = urls,
+  renombrar     = TRUE,
+  asignar_tipos = TRUE,
+  validar       = TRUE
+)
+
+# Estructura típica:
+# data$pre$datos, data$long$datos, data$post$datos
+
+```
+
+# Chequeo y normalización de emails y nombres
+
+En esta vignette, trabajremos con datos ficticios incluidos en el paquete.
+
+Para mayor comodidad, los renombramos como `pre`, `long` y `post`.
+
+```{r}
+data(pre)
+data(long)
+data(post)
+```
+
+El dataset `pre` contiene nombres y direcciones de correo con errores intencionales, lo que permite ilustrar el procedimiento completo de chequeo y normalización.
+
+## Chequeo de emails
+
+```{r}
+emails_check(pre$email)
+
+### FALTA UNA TILDE
+### FALTA UNA COMA
+
+```
+
+**EN DESARROLLO**: Se está trabajando para que trabajen igualmente sobre data frames (revisando y modificando la columna `email`) o sobre listas (recorriendo las columnas `email` de todos los data frames de una lista), ya que `import_gs()` devuelve una lista con todos los archivos de datos.
+
+Mientras, se puede utilizar `purr` para no triplicar el código
+
+## Chequeo de emails en los tres módulos con `purr`
+
+La función `emails_check()` no modifica los emails, sino que identifica emails con errores.
+
+```{r}
+data <- list(pre = pre, long = long, post = post)
+
+check_emails <- map(data[c("pre", "long", "post")], ~ emails_check(.x$email))
+
+```
+
+Nos permite identificar qué emails tienen espacios, comas, tildes o la letra `ñ`:
+
+```{r}
+check_emails$pre %>%
+  select(original, tipo_error) %>%
+  filter(!is.na(tipo_error))
+```
 
 ## Normalizar emails
 
+La función `normalizar_email()` limpia la variable `email`, eliminando espacios en blanco, acentos y la letra `ñ`.  
+
+
 ```{r}
-emails <- c("  José.Pérez @ GmÁil.com ", "ANA@EMPRESA.ES", "nino @ dominio.es")
+data[c("pre", "long", "post")] <- map(
+  data[c("pre", "long", "post")],
+  ~ { .x$email <- normalizar_email(.x$email); .x }
+)
+```
 
-# Chequear errores comunes
-emails_check(emails)
+Después de la normalización podemos volver a aplicar emails_check() y comprobar que ya no aparecen esos errores.
 
-# Normalizar emails
-normalizar_email(emails)
+**Ojo**, las comas en los dominios (ej. hotmail,com) no se corrigen aquí; para esos casos se aplica el diccionario de dominios.
+
+```{r}
+check_emails <- map(data[c("pre", "long", "post")], ~ emails_check(.x$email))
+check_emails$pre %>%
+  select(original, tipo_error) %>%
+  filter(!is.na(tipo_error))
+```
+
+## Corrección de emails con diccionario
+
+Podemos definir un diccionario de errores comunes en los dominios de correo (ya sea en una hoja Excel o como un objeto de R) y aplicarlo para corregir casos conocidos como `gamil.com`, `hotmail.con`, `gmail,com` o `yaho.com`.  
+
+A estas se les llama **correcciones determinísticas** porque siempre reemplazan un error concreto por su corrección exacta, sin necesidad de estimar distancias o probabilidades (a diferencia del método de Levenshtein).
+
+```{r}
+diccionario_emails <- tribble(
+  ~erroneo,   ~correcto,
+  "gamil.com",   "gmail.com",
+  "hotmail,com", "hotmail.com",
+  "gmail..com",  "gmail.com",
+  "gmail.con",   "gmail.com",
+  "yahoo,es",    "yahoo.es"
+)
+
+# Aplicamos diccionario (correciones determinísticas)
+
+data[c("pre","long","post")] <- map(
+  data[c("pre","long","post")],
+  ~ { .x <- correct_domains_from_excel(.x, 
+                                             diccionario_emails, 
+                                             vars = "email"); 
+  .x }
+)
+```
+
+Podemos volver a revisar:
+
+```{r}
+check_emails <- map(data[c("pre", "long", "post")], ~ emails_check(.x$email))
+check_emails$pre %>%
+  select(original, tipo_error) %>%
+  filter(!is.na(tipo_error))
+```
+
+La función `review_domains_lv()` aplica la distancia de Levenshtein para detectar dominios sospechosos que no estén en el diccionario.  
+Sirve para generar sugerencias de corrección.
+
+```{r}
+validos <- c(
+  "aol.com","gmail.com","hotmail.com","hotmail.es","live.de","me.com",
+  "outlook.com","yahoo.com","yahoo.com.ar","yahoo.com.mx","yahoo.es",
+  "supramax.com.mx","telefonica.net"
+)
+
+out <- review_domains_lv(
+  datos         = data,
+  valid_domains = validos,
+  max_dist      = 2,
+  var           = "email"   # o "email_google"
+)
+```
+
+Esto nos permite, a partir de una lista de dominios válidos (`validos`), detectar dominios potencialmente erróneos que no estaban contemplados en nuestro *diccionario de dominios*.  
+
+Se pueden consultar tanto las **sugerencias completas** como los **sospechosos**. En este ejemplo aparece un error no previsto en el diccionario. 
+
+```{r}
+out$suggestions # sugerencias completas
+out$suspects    # solo sospechosos
+```
+
+Este error no previsto puede incorporarse a nuestro diccionario de dominios para futuras correcciones automáticas.
+
+```{r}
+# Incorporamos un nuevo error conocido al diccionario:
+# "hotmail.con" debe corregirse siempre como "hotmail.com"
+diccionario_emails <- bind_rows(
+  diccionario_emails,
+  tibble(erroneo = "hotmail.con", correcto = "hotmail.com")
+)
+
+# Aplicamos el diccionario de dominios para corregir los emails
+data[c("pre","long","post")] <- map(
+  data[c("pre","long","post")],
+  ~ { .x <- correct_domains_from_excel(.x, 
+                                             diccionario_emails, 
+                                             vars = "email"); 
+  .x }
+)
+
+# Usamos de nuevo la revisión por distancia de Levenshtein
+# para detectar dominios sospechosos no contemplados en el diccionario
+out <- review_domains_lv(
+  datos         = data,
+  valid_domains = validos,
+  max_dist      = 2,
+  var           = "email"   
+)
+
+# Consultamos la lista de sospechosos tras la corrección
+out$suspects    
 
 ```
 
+
 ## Normalizar nombres
 
+La función `normalizar_nombre()` genera una nueva variable `name_norm` a partir de `name`.  
+
+Durante el proceso elimina acentos, convierte a minúsculas y limpia espacios extra, de forma que los nombres quedan estandarizados. 
+
+
+```{r eval=FALSE, include=FALSE}
+# normalizar nombres en una nueva variable "name_norm"
+data[c("pre", "long", "post")] <- map(
+  data[c("pre", "long", "post")],
+  ~ { .x$name_norm <- normalizar_nombre(.x$name); .x }
+)
+```
 

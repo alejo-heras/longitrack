@@ -8,12 +8,11 @@
 #'   \item{email}{Dirección de correo con errores intencionales}
 #'   \item{name}{Nombre original}
 #'   \item{date}{Fecha de respuesta}
-#'   \item{email_google}{Email alternativo capturado en Google Forms (opcional)}
 #' }
 #' @examples
 #' data(ejemplo_pre)
 #' head(ejemplo_pre)
-"ejemplo_pre"
+"pre"
 
 
 #' Datos de ejemplo: longitudinal
@@ -29,7 +28,7 @@
 #' @examples
 #' data(ejemplo_long)
 #' dplyr::count(ejemplo_long, email)
-"ejemplo_long"
+"long"
 
 
 #' Datos de ejemplo: postest
@@ -45,4 +44,4 @@
 #' @examples
 #' data(ejemplo_post)
 #' nrow(ejemplo_post)
-"ejemplo_post"
+"post"

@@ -13,8 +13,9 @@ correct_domains_from_excel(
 \arguments{
 \item{df}{data.frame con columna \code{email}.}
 
-\item{path}{Ruta al archivo Excel con el diccionario de dominios.
-Por defecto \code{"diccionario_emails.xlsx"} en la raíz del proyecto.}
+\item{path}{Ruta al Excel con el diccionario \strong{o} un data.frame/tibble ya cargado
+con dos columnas: \code{erroneo} y \code{correcto}. Por defecto usa
+"diccionario_emails.xlsx" en la raíz del proyecto.}
 }
 \value{
 El mismo \code{data.frame} con la columna \code{email} corregida

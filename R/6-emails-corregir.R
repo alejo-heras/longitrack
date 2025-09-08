@@ -127,8 +127,10 @@ diff_email_google <- function(df) {
 #' Puede aplicarse a una o varias columnas (p. ej. `email` y `email_google`).
 #'
 #' @param df data.frame con columna \code{email}.
-#' @param path Ruta al archivo Excel con el diccionario de dominios.
-#'   Por defecto \code{"diccionario_emails.xlsx"} en la raíz del proyecto.
+#'   
+#' @param path Ruta al Excel con el diccionario **o** un data.frame/tibble ya cargado
+#'   con dos columnas: `erroneo` y `correcto`. Por defecto usa
+#'   "diccionario_emails.xlsx" en la raíz del proyecto.
 #'
 #' @return El mismo \code{data.frame} con la columna \code{email} corregida
 #'   según el diccionario.
@@ -180,11 +182,18 @@ diff_email_google <- function(df) {
 correct_domains_from_excel <- function(df,
                                        path = "diccionario_emails.xlsx",
                                        vars = "email") {
-  if (!file.exists(path)) {
-    stop("No se encuentra el archivo de diccionario en: ", path)
+  # Acepta ruta a Excel O un tibble/data.frame directamente
+  if (is.character(path) && length(path) == 1) {
+    if (!file.exists(path)) {
+      stop("No se encuentra el archivo de diccionario en: ", path)
+    }
+    dicc <- readxl::read_excel(path)
+  } else if (is.data.frame(path)) {
+    dicc <- path
+  } else {
+    stop("`path` debe ser una ruta a .xlsx o un data.frame/tibble con columnas 'erroneo' y 'correcto'.")
   }
   
-  dicc <- readxl::read_excel(path)
   if (!all(c("erroneo", "correcto") %in% names(dicc))) {
     stop("El Excel debe tener columnas: 'erroneo' y 'correcto'")
   }

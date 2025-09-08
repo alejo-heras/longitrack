@@ -2,7 +2,7 @@
 % Please edit documentation in R/1-google-sheet.R
 \name{importar_gs}
 \alias{importar_gs}
-\title{Importar datos desde Google Sheets (opcionalmente renombrar y asignar tipos)}
+\title{Importar datos desde Google Sheets (opcionalmente renombrar, chequear y asignar tipos)}
 \usage{
 importar_gs(
   idioma = c("es", "en", "both"),
@@ -26,7 +26,7 @@ importar_gs(
 
 \item{urls}{Lista con estructura:
 \code{list(es = list(pre=..., long=..., post=...), en = list(pre=..., long=..., post=...))}.
-Las URLs ausentes se omiten (se informa con mensajes).}
+Las URLs ausentes se omiten.}
 
 \item{hoja}{Nombre de la hoja a leer en cada Google Sheet
 (por defecto \code{"Respuestas de formulario 1"}).}
@@ -37,8 +37,8 @@ Las URLs ausentes se omiten (se informa con mensajes).}
 \item \code{data.frame} → se usa directamente.
 \item \code{character} (ruta a \code{.xlsx}/\code{.csv}) → se carga desde esa ruta.
 Debe contener, como mínimo, las columnas que requieren las funciones de
-renombrado y tipado (p.ej. \code{variable}/\code{etiqueta} para renombrar y \code{variable}/\code{tipo}
-para tipos). Opcionalmente \code{idioma} y/o \code{modulo}.
+renombrado y coerción de clase (p.ej. \code{variable}/\code{etiqueta} para renombrar y \code{variable}/\code{tipo}
+para tipos de variable). Opcionalmente \code{idioma} y/o \code{modulo}.
 }}
 
 \item{path_diccionario}{Ruta por defecto cuando \code{diccionario = NULL}
@@ -67,7 +67,7 @@ y solo sobre los módulos efectivamente cargados.}
 }
 \description{
 Lee cualquiera de los módulos \code{"pre"}, \code{"long"} y/o \code{"post"} en uno o dos
-idiomas. Omite automáticamente combinaciones idioma/módulo sin URL e informa.
+idiomas simultaneamente. Omite automáticamente combinaciones idioma/módulo sin URL.
 }
 \examples{
 \dontrun{
@@ -78,7 +78,7 @@ urls <- list(
 # Solo PRE en español, sin renombrar/tipos/validación:
 importar_gs(idioma="es", modulos="pre", urls)
 
-# PRE+LONG en ambos idiomas, con renombrado y validación (omite post si falta):
+# PRE+LONG en ambos idiomas, con renombrado y validación:
 importar_gs(idioma="both", modulos=c("pre","long"), urls,
             renombrar=TRUE, asignar_tipos=FALSE, validar=TRUE)
 

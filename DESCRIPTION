@@ -6,7 +6,7 @@ Authors@R:
 Description: Herramientas para importar, normalizar y monitorizar datos de
     trabajo de campo cuantitativo longitudinal con tres módulos; (i) pretest,
     (ii) mediciones longitudinales en formato largo (varias mediciones por persona) y (iii) postest.
-    Incluye renombrado de variables según diccionario, validación/corrección de emails,
+    Incluye renombrado de variables según diccionario, chequeo/corrección de emails,
     construcción de un padrón de participantes únicos y cálculo de métricas de
     participación, seguimiento y retención.
 License: MIT + file LICENSE

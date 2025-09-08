@@ -13,5 +13,5 @@ gs_auth(path)
 (invisible) TRUE
 }
 \description{
-Autenticación con Google Sheets (JSON de servicio)
+Necesario cuando los datos que tenemos en Google Sheets no están en abierto.
 }

@@ -34,7 +34,7 @@ names0 <- c("Ana", "Luis", "María", "Eva", "Pablo", "Marta",
             "Jorge", "Nora", "Íñigo", "Sofía", "José Pérez", "Niño")
 domains <- c("gmail.com", "hotmail.com", "yahoo.es", "empresa.es")
 
-ejemplo_pre <- tibble(
+pre <- tibble(
   email = paste0(ids, "@", sample(domains, n_id, replace = TRUE)),
   name  = names0[1:n_id]
 ) %>%
@@ -43,29 +43,21 @@ ejemplo_pre <- tibble(
     name  = if_else(runif(n()) < .6, vapply(name, err_name, character(1)), name),
     email = if_else(runif(n()) < .6, vapply(email, err_email, character(1)), email),
     date  = as.Date("2025-08-01") + sample(0:3, n(), replace = TRUE),
-    # email alternativo (con o sin error)
-    email_google = if_else(
-      runif(n()) < .35,
-      if_else(grepl("@gmail\\.com$", tolower(email)),
-              sub("@gmail\\.com$", "@googlemail.com", tolower(email)),
-              NA_character_),
-      NA_character_
-    )
   )
 
 # --- mediciones longitudinales ----------------
 # 24 mediciones totales, con probabilidad desigual por persona
 target_meas <- 24
 w <- runif(n_id); w <- w / sum(w)
-ejemplo_long <- tibble(
-  email = sample(ejemplo_pre$email, size = target_meas, replace = TRUE, prob = w),
+long <- tibble(
+  email = sample(pre$email, size = target_meas, replace = TRUE, prob = w),
   date  = as.Date("2025-08-01") + sample(0:37, target_meas, replace = TRUE)
 ) %>%
   arrange(email, date)
 
 # añadir 3 externos (no_pre) para crear perfil "no_pre"
-ejemplo_long <- bind_rows(
-  ejemplo_long,
+long <- bind_rows(
+  long,
   tibble(
     email = paste0("externo", 1:3, "@example.org"),
     date  = as.Date("2025-08-10") + c(5, 12, 28)
@@ -73,18 +65,18 @@ ejemplo_long <- bind_rows(
 )
 
 # marcar algunos como "abandono" forzando última fecha <= hoy-7 (2025-09-07 - 7 = 2025-08-31)
-abandon <- sample(unique(ejemplo_long$email), size = 3)
-ejemplo_long <- ejemplo_long %>%
+abandon <- sample(unique(long$email), size = 3)
+long <- long %>%
   mutate(date = if_else(email %in% abandon & date > as.Date("2025-08-31"),
                         as.Date("2025-08-31"), date))
 
 # --- posttest --------------------------
-# solo para ~60% de quienes están en ejemplo_pre y con al menos una medición en ejemplo_long
-ejemplo_post <- ejemplo_long %>%
-  semi_join(ejemplo_pre, by = "email") %>%
+# solo para ~60% de quienes están en pre y con al menos una medición en long
+post <- long %>%
+  semi_join(pre, by = "email") %>%
   distinct(email) %>%
   slice_sample(prop = .6) %>%
   mutate(date = as.Date("2025-09-05") + sample(0:2, n(), replace = TRUE))
 
 # --- guardar en data/ -------------------
-usethis::use_data(ejemplo_pre, ejemplo_long, ejemplo_post, overwrite = TRUE, compress = "xz")
+usethis::use_data(pre, long, post, overwrite = TRUE, compress = "xz")

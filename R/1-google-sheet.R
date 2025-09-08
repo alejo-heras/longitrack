@@ -23,6 +23,9 @@
 # ------------------------------------------------------------------
 
 #' Autenticación con Google Sheets (JSON de servicio)
+#' 
+#' Necesario cuando los datos que tenemos en Google Sheets no están en abierto.
+#' 
 #' @param path Ruta al JSON de credenciales.
 #' @return (invisible) TRUE
 #' @export
@@ -32,16 +35,16 @@ gs_auth <- function(path) {
   invisible(TRUE)
 }
 
-#' Importar datos desde Google Sheets (opcionalmente renombrar y asignar tipos)
+#' Importar datos desde Google Sheets (opcionalmente renombrar, chequear y asignar tipos)
 #'
 #' Lee cualquiera de los módulos `"pre"`, `"long"` y/o `"post"` en uno o dos
-#' idiomas. Omite automáticamente combinaciones idioma/módulo sin URL e informa.
+#' idiomas simultaneamente. Omite automáticamente combinaciones idioma/módulo sin URL.
 #'
 #' @param idioma `"es"`, `"en"` o `"both"`.
 #' @param modulos Vector con cualquiera de `c("pre","long","post")` o `"all"`.
 #' @param urls Lista con estructura:
 #'   `list(es = list(pre=..., long=..., post=...), en = list(pre=..., long=..., post=...))`.
-#'   Las URLs ausentes se omiten (se informa con mensajes).
+#'   Las URLs ausentes se omiten.
 #' @param hoja Nombre de la hoja a leer en cada Google Sheet
 #'   (por defecto `"Respuestas de formulario 1"`).
 #' @param diccionario Puede ser:
@@ -49,8 +52,8 @@ gs_auth <- function(path) {
 #'   - `data.frame` → se usa directamente.
 #'   - `character` (ruta a `.xlsx`/`.csv`) → se carga desde esa ruta.
 #'   Debe contener, como mínimo, las columnas que requieren las funciones de
-#'   renombrado y tipado (p.ej. `variable`/`etiqueta` para renombrar y `variable`/`tipo`
-#'   para tipos). Opcionalmente `idioma` y/o `modulo`.
+#'   renombrado y coerción de clase (p.ej. `variable`/`etiqueta` para renombrar y `variable`/`tipo`
+#'   para tipos de variable). Opcionalmente `idioma` y/o `modulo`.
 #' @param path_diccionario Ruta por defecto cuando `diccionario = NULL`
 #'   (defecto `"diccionario.xlsx"`).
 #' @param sheet_diccionario Hoja si es Excel (nombre o índice). Por defecto `1`.
@@ -76,7 +79,7 @@ gs_auth <- function(path) {
 #' # Solo PRE en español, sin renombrar/tipos/validación:
 #' importar_gs(idioma="es", modulos="pre", urls)
 #'
-#' # PRE+LONG en ambos idiomas, con renombrado y validación (omite post si falta):
+#' # PRE+LONG en ambos idiomas, con renombrado y validación:
 #' importar_gs(idioma="both", modulos=c("pre","long"), urls,
 #'             renombrar=TRUE, asignar_tipos=FALSE, validar=TRUE)
 #'
