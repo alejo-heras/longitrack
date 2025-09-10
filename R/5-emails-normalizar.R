@@ -115,7 +115,14 @@ quitar_acentos <- function(texto) {
 #' # pre <- correct_domains_from_excel(pre, "dev/diccionario_emails.xlsx")
 #'
 #' # 4) (Después) Revisión por Levenshtein:
-#' # out <- review_domains_lv(list(pre = pre), valid_domains = c("gmail.com","hotmail.com","outlook.com"))
+#' out <- review_domains_lv(
+#'   list(pre = pre),
+#'   valid_domains = c(
+#'     "gmail.com",
+#'     "hotmail.com",
+#'     "outlook.com"
+#'   )
+#' )
 #'
 #' @export
 normalizar_email <- function(texto) {
