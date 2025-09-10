@@ -20,7 +20,7 @@ Conjunto ficticio de respuestas de pretest con emails y nombres con errores comu
 Incluye casos con acentos, mayúsculas, espacios extra y dominios mal escritos.
 }
 \examples{
-data(ejemplo_pre)
-head(ejemplo_pre)
+data(pre)
+head(pre)
 }
 \keyword{datasets}

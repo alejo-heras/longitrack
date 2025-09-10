@@ -19,7 +19,7 @@ Conjunto ficticio de mediciones longitudinales con múltiples observaciones por 
 fechas distribuidas en varias semanas, abandonos y participantes externos sin pretest.
 }
 \examples{
-data(ejemplo_long)
-dplyr::count(ejemplo_long, email)
+data(long)
+dplyr::count(long, email)
 }
 \keyword{datasets}

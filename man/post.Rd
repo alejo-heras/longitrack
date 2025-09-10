@@ -19,7 +19,7 @@ Conjunto ficticio de postest aplicado a un subconjunto de participantes,
 incluyendo casos con y sin pretest/longitudinal.
 }
 \examples{
-data(ejemplo_post)
-nrow(ejemplo_post)
+data(post)
+nrow(post)
 }
 \keyword{datasets}
