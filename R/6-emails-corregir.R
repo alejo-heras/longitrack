@@ -131,6 +131,8 @@ diff_email_google <- function(df) {
 #' @param path Ruta al Excel con el diccionario **o** un data.frame/tibble ya cargado
 #'   con dos columnas: `erroneo` y `correcto`. Por defecto usa
 #'   "diccionario_emails.xlsx" en la raíz del proyecto.
+#'   
+#' @param vars Vector de nombres de columnas a corregir (por defecto `"email"`).
 #'
 #' @return El mismo \code{data.frame} con la columna \code{email} corregida
 #'   según el diccionario.

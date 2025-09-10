@@ -10,8 +10,8 @@
 #'   \item{date}{Fecha de respuesta}
 #' }
 #' @examples
-#' data(ejemplo_pre)
-#' head(ejemplo_pre)
+#' data(pre)
+#' head(pre)
 "pre"
 
 
@@ -26,8 +26,8 @@
 #'   \item{date}{Fecha de la medición}
 #' }
 #' @examples
-#' data(ejemplo_long)
-#' dplyr::count(ejemplo_long, email)
+#' data(long)
+#' dplyr::count(long, email)
 "long"
 
 
@@ -42,6 +42,6 @@
 #'   \item{date}{Fecha de respuesta}
 #' }
 #' @examples
-#' data(ejemplo_post)
-#' nrow(ejemplo_post)
+#' data(post)
+#' nrow(post)
 "post"
